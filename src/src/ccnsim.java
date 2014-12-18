@@ -16,7 +16,7 @@ import org.ho.yaml.Yaml;
 import config.Config;
 import simulation.Util;
 
-public class sim {
+public class ccnsim {
 
 	public static void main(String[] args)
 	{
