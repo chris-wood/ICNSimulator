@@ -13,7 +13,7 @@ import java.io.IOException;
 
 import org.ho.yaml.Yaml;
 
-import config.Config;
+import simulation.Config;
 import simulation.Util;
 
 public class ccnsim {
