@@ -1,3 +1,5 @@
+package simulation;
+
 public class Clock
 {
 	public static long time;

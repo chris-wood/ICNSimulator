@@ -1,3 +1,4 @@
+package config;
 public class Config
 {
 	public long simTime;
