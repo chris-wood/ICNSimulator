@@ -32,6 +32,11 @@ public abstract class Component {
 		cycle(currentTime);
 	}
 	
+	public void connect(Component component, MessageQueue queue) {
+		addOutputQueue(queue);
+		component.addInputQueue(queue);
+	}
+	
 	public String getIdentity() {
 		return identity;
 	}

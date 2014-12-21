@@ -27,6 +27,8 @@ public class ComponentTest {
 		// topology: C1 -> C2
 //		component1.addOutputConnection(component2, 0);
 		MessageQueue queue = new MessageQueue("connection");
+		component1.addOutputQueue(queue);
+		component2.addInputQueue(queue);
 	}
 
 	@Test
