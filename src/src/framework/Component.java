@@ -32,7 +32,7 @@ public abstract class Component {
 		cycle(currentTime);
 	}
 	
-	public void connect(Component component, MessageQueue queue) {
+	public void connect(Component component, MessageQueue queue) throws Exception {
 		addOutputQueue(queue);
 		component.addInputQueue(queue);
 	}
@@ -41,11 +41,17 @@ public abstract class Component {
 		return identity;
 	}
 	
-	public void addOutputQueue(MessageQueue queue) {
+	public void addOutputQueue(MessageQueue queue) throws Exception {
+		if (outputQueues.containsKey(queue.getIdentity())) {
+			throw new Exception("Output queue already exists");
+		}
 		outputQueues.put(queue.getIdentity(), queue);
 	}
 	
-	public void addInputQueue(MessageQueue queue) {
+	public void addInputQueue(MessageQueue queue) throws Exception {
+		if (inputQueues.containsKey(queue.getIdentity())) {
+			throw new Exception("Input queue already exists");
+		}
 		inputQueues.put(queue.getIdentity(), queue);
 	}
 	
