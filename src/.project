@@ -16,6 +16,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>hamcrest-core-1.3.jar</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/dependencies/hamcrest-core-1.3.jar</locationURI>
+		</link>
+		<link>
+			<name>junit-4.12.jar</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/dependencies/junit-4.12.jar</locationURI>
+		</link>
+		<link>
 			<name>jyaml-1.3.jar</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/dependencies/jyaml-1.3.jar</locationURI>

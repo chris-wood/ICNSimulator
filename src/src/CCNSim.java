@@ -16,7 +16,7 @@ import org.ho.yaml.Yaml;
 import simulation.Config;
 import simulation.Util;
 
-public class ccnsim {
+public class CCNSim {
 
 	public static void main(String[] args)
 	{
@@ -33,18 +33,7 @@ public class ccnsim {
 			Util.error(config.toString());
 			
 			// Run the simulator
-//			Boomerang boom = new Boomerang(config);
-//			try
-//			{
-//				boom.run();
-//			} 
-//			catch (Exception e)
-//			{
-//				Util.error(e.getMessage());
-//			}
-//			
-//			// Always, always compute the stats
-//			boom.computeStats();
+			// TODO
 		}
 		catch (FileNotFoundException e)
 		{

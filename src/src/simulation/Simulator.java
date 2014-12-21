@@ -2,31 +2,25 @@ package simulation;
 
 import java.util.List;
 
+import framework.Component;
+import framework.TimeBucket;
+
 public class Simulator implements Runnable {
 	
-	private List<TimeBucket> timeBuckets;
+	private List<Component> components;
 	private Config config;
 
 	@Override
 	public void run() {
 		long currentTime = 0L;
 		long endTime = config.getSimulationTime();
-		long epoch = config.getMinimumEpochLength();
 		
 		while (currentTime < endTime) {
-			
-			if (!timeBuckets.isEmpty()) {
-				TimeBucket bucket = timeBuckets.get(0);
-				if (bucket.getEventTime() == currentTime) {
-					while (bucket.hasNext()) {
-						Event event = bucket.pop();
-						
-						// TODO: process the event here
-					}
-				}
+			if (!components.isEmpty()) {
+				Component component = components.get(0);
+				component.cycle(currentTime);
 			}
-			
-			currentTime += epoch; 
+			currentTime++; // time is measured in epochs 
 		}
 	}
 
