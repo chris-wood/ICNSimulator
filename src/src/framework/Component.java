@@ -1,18 +1,18 @@
 package framework;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public abstract class Component {
 	
-	protected List<MessageQueue> queues;
-	protected Map<String, Connection> connections;
+	protected String identity;
+	protected Map<String, MessageQueue> inputQueues;
+	protected Map<String, MessageQueue> outputQueues;
 	
-	public Component() {
-		queues = new ArrayList<MessageQueue>();
-		connections = new HashMap<String, Connection>();
+	public Component(String identity) {
+		this.identity = identity;
+		inputQueues = new HashMap<String, MessageQueue>();
+		outputQueues = new HashMap<String, MessageQueue>();
 	}
 	
 	// template
@@ -23,8 +23,8 @@ public abstract class Component {
 
 	// final
 	public final void crank(long currentTime) {
-		for (int i = 0; i < queues.size(); i++) {
-			MessageQueue queue = queues.get(i);
+		for (int i = 0; i < inputQueues.size(); i++) {
+			MessageQueue queue = inputQueues.get(i);
 			while (!queue.isEmpty()) {
 				handleInputMessage(queue.getMessage());
 			}
@@ -32,20 +32,20 @@ public abstract class Component {
 		cycle(currentTime);
 	}
 	
-	public void addConnection(String connectionKey, Component component, int queueIndex) {
-		connections.put(connectionKey, new Connection(component, queueIndex));
+	public String getIdentity() {
+		return identity;
 	}
 	
-	public void sendMessage(String connectionKey, Message msg) {
-		connections.get(connectionKey).insertMessage(msg);
+	public void addOutputQueue(MessageQueue queue) {
+		outputQueues.put(queue.getIdentity(), queue);
 	}
 	
-	public void receiveMessage(int queueIndex, Message msg) throws IndexOutOfBoundsException {
-		queues.get(queueIndex).putMessage(msg);
+	public void addInputQueue(MessageQueue queue) {
+		inputQueues.put(queue.getIdentity(), queue);
 	}
 	
-	public Message getMessage(int queueIndex) {
-		return queues.get(queueIndex).getMessage();
+	public void sendMessage(String queueKey, Message msg) {
+		outputQueues.get(queueKey).putMessage(msg);
 	}
 	
 }

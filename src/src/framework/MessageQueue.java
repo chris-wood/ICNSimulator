@@ -5,10 +5,16 @@ import java.util.List;
 
 public class MessageQueue {
 	
+	protected String identity;
 	protected List<Message> queue;
 	
-	public MessageQueue() {
+	public MessageQueue(String identity) {
+		this.identity = identity;
 		queue = new ArrayList<Message>();
+	}
+	
+	public String getIdentity() {
+		return identity;
 	}
 	
 	public boolean isEmpty() {

@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import framework.Component;
 import framework.Message;
+import framework.MessageQueue;
 
 public class ComponentTest {
 	
@@ -24,7 +25,8 @@ public class ComponentTest {
 		// TODO: create the simulation and then crank five times, see if the message pops out on the other end
 		
 		// topology: C1 -> C2
-		component1.addConnection("stack", component2, 0);
+//		component1.addOutputConnection(component2, 0);
+		MessageQueue queue = new MessageQueue("connection");
 	}
 
 	@Test
@@ -39,7 +41,7 @@ public class ComponentTest {
 		int modulus = 5; // not important
 
 		public TestComponent() {
-			super();
+			super("TestComponent");
 		}
 
 		@Override
