@@ -8,4 +8,8 @@ public class Message {
 		description = msg;
 	}
 	
+	public String getDescription() {
+		return description;
+	}
+	
 }

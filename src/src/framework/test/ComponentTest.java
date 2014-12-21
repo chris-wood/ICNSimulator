@@ -8,19 +8,23 @@ import java.util.List;
 import org.junit.Test;
 
 import framework.Component;
-import framework.ComponentConnection;
 import framework.Message;
 
 public class ComponentTest {
 	
 	public ComponentTest() {
-		ComponentConnection conn = new ComponentConnection();
 		
 		TestComponent component1 = new TestComponent();
 		TestComponent component2 = new TestComponent();
 		
+		List<Component> components = new ArrayList<Component>();
+		components.add(component1);
+		components.add(component2);
+		
+		// TODO: create the simulation and then crank five times, see if the message pops out on the other end
+		
 		// topology: C1 -> C2
-		conn.connect(component1, component2);
+		component1.addConnection("stack", component2, 0);
 	}
 
 	@Test
@@ -37,37 +41,21 @@ public class ComponentTest {
 		public TestComponent() {
 			super();
 		}
-		
+
+		@Override
+		public void handleInputMessage(Message msg) {
+			System.out.println("Received message: " + msg.toString());
+		}
+
 		@Override
 		public void cycle(long currentTime) {
 			count++;
 			if (count == modulus) {
 				cycles++;
 				Message msg = new Message("Test Cycle Message " + cycles);
-				
-				// this doesn't seem like the right abstraction...
-				// outputInterfaces[key].put(message)
-				this.outputs.get(0).putMessage(msg);
+				sendMessage("stack", msg);
 			}
 			count %= modulus;
-		}
-		
-		@Override
-		public void handleInputMessage(Message m) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void handleOutputMessage(Message m) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void handleEvent(Message m) {
-			// TODO Auto-generated method stub
-			
 		}
 		
 	}
