@@ -8,21 +8,19 @@ import java.util.List;
 import org.junit.Test;
 
 import framework.Component;
-import framework.ComponentInterface;
+import framework.ComponentConnection;
 import framework.Message;
 
 public class ComponentTest {
 	
 	public ComponentTest() {
-		ComponentInterface output = new ComponentInterface();
-		List<ComponentInterface> outputs = new ArrayList<ComponentInterface>();
-		outputs.add(output);
+		ComponentConnection conn = new ComponentConnection();
 		
-		ComponentInterface input = new ComponentInterface();
-		List<ComponentInterface> inputs = new ArrayList<ComponentInterface>();
-		inputs.add(input);
+		TestComponent component1 = new TestComponent();
+		TestComponent component2 = new TestComponent();
 		
-		TestComponent component = new TestComponent(inputs, outputs);
+		// topology: C1 -> C2
+		conn.connect(component1, component2);
 	}
 
 	@Test
@@ -34,11 +32,10 @@ public class ComponentTest {
 		
 		int cycles = 0;
 		int count = 0;
-		int modulus = 5;
+		int modulus = 5; // not important
 
-		public TestComponent(List<ComponentInterface> inputInterfaces,
-				List<ComponentInterface> outputInterfaces) {
-			super(inputInterfaces, outputInterfaces);
+		public TestComponent() {
+			super();
 		}
 		
 		@Override
@@ -49,7 +46,8 @@ public class ComponentTest {
 				Message msg = new Message("Test Cycle Message " + cycles);
 				
 				// this doesn't seem like the right abstraction...
-				this.outputInterfaces.get(0).insertOutputMessage(msg);
+				// outputInterfaces[key].put(message)
+				this.outputs.get(0).putMessage(msg);
 			}
 			count %= modulus;
 		}

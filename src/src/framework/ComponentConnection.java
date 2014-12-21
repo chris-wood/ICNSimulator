@@ -1,13 +1,35 @@
 package framework;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ComponentConnection {
 
-	protected ComponentInterface head;
-	protected ComponentInterface tail;
+	protected List<Message> inputQueue;
+	protected List<Message> outputQueue;
 	
-	public void connect(ComponentInterface c1, ComponentInterface c2) {
-		this.head = c1;
-		this.tail = c2;
+	public void connect(Component src, Component dst) {
+		src.addOutput(this);
+		dst.addInput(this);
+	}
+	
+	public void putMessage(Message m) {
+		if (outputQueue == null) {
+			outputQueue = new ArrayList<Message>();
+		}
+		outputQueue.add(m);
+	}
+	
+	public Message removeMessage() {
+		if (inputQueue == null) {
+			inputQueue = new ArrayList<Message>();
+			return null;
+		} else if (!inputQueue.isEmpty()) {
+			Message msg = inputQueue.get(0);
+			inputQueue.remove(0);
+			return msg;
+		}
+		return null;
 	}
 	
 }
