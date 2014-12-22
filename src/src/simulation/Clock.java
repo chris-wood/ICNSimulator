@@ -3,18 +3,21 @@ package simulation;
 public class Clock
 {
 	public static long time;
+	public static long endTime;
 	public boolean tick = true;
 	
-	public Clock()
+	public static void initialize(long endTime)
 	{
 		time = 0L;
+		endTime = 0L;
 	}
 	
-	public void tick()
+	public static boolean isTimeLeft() {
+		return (time < endTime);
+	}
+	
+	public static void tick()
 	{
 		time++;
-		if (tick) Util.error("tick...");
-		else Util.error("tock...");
-		tick = !tick;
 	}
 }

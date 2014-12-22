@@ -22,14 +22,18 @@ public abstract class Component {
 	public abstract void cycle(long currentTime);
 
 	// final
-	public final void crank(long currentTime) {
-		for (int i = 0; i < inputQueues.size(); i++) {
-			MessageQueue queue = inputQueues.get(i);
+	public final void crankOutput(long currentTime) {
+		cycle(currentTime);
+	}
+	
+	public final void crankInput(long currentTime) {
+		for (String queueKey : inputQueues.keySet()) {
+			MessageQueue queue = inputQueues.get(queueKey);
+			System.out.println(identity + " is processing input queue " + queue.toString() + " at time " + currentTime);
 			while (!queue.isEmpty()) {
 				handleInputMessage(queue.getMessage());
 			}
 		}
-		cycle(currentTime);
 	}
 	
 	public void connect(Component component, MessageQueue queue) throws Exception {
@@ -56,7 +60,12 @@ public abstract class Component {
 	}
 	
 	public void sendMessage(String queueKey, Message msg) {
-		outputQueues.get(queueKey).putMessage(msg);
+		if (!outputQueues.containsKey(queueKey)) {
+			System.err.println("Error: " + this.identity + " output queue key: " + queueKey + " not found");
+		} else {
+			System.out.println(identity + " is sending message " + msg.toString());
+			outputQueues.get(queueKey).putMessage(msg);
+		}
 	}
 	
 }

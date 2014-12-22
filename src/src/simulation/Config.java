@@ -2,8 +2,8 @@ package simulation;
 
 public class Config
 {
-	private long minimumEpochLength;
-	private long simulationTime; // total # of epochs
+	public long minimumEpochLength;
+	public long simulationTime; // total # of epochs
 	
 	public long getMinimumEpochLength() {
 		return minimumEpochLength;
