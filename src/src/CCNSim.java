@@ -57,5 +57,4 @@ public class CCNSim {
 			System.err.println("IO error occurred: " + e.getMessage());
 		}
 	}
-	
 }
