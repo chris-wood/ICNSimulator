@@ -5,7 +5,7 @@ import java.util.List;
 
 import framework.Component;
 
-public class Simulator implements Runnable {
+public class Simulator extends Thread {
 	
 	private List<Component> components;
 	private Config config;

@@ -10,10 +10,14 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.ho.yaml.Yaml;
 
+import framework.Component;
 import simulation.Config;
+import simulation.Simulator;
 import simulation.Util;
 
 public class CCNSim {
@@ -22,7 +26,7 @@ public class CCNSim {
 	{
 		if (args.length != 1)
 		{
-			System.err.println("Usage: java Boomerang config");
+			System.err.println("Usage: java CCNSim config");
 			System.exit(-1);
 		}
 		
@@ -32,8 +36,16 @@ public class CCNSim {
 			Config config = Yaml.loadType(new File(args[0]), Config.class);
 			Util.error(config.toString());
 			
+			// Construct the list of simulation components
+			List<Component> components = new ArrayList<Component>();
+			
 			// Run the simulator
-			// TODO
+			Simulator simulator = new Simulator(components, config);
+			try {
+				simulator.start();
+			} catch (Exception ex) { // TODO: replace with the thread-specific exception
+				ex.printStackTrace();
+			}
 		}
 		catch (FileNotFoundException e)
 		{
