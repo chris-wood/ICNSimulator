@@ -22,16 +22,13 @@ import simulation.Util;
 
 public class CCNSim {
 
-	public static void main(String[] args)
-	{
-		if (args.length != 1)
-		{
+	public static void main(String[] args) {
+		if (args.length != 1) {
 			System.err.println("Usage: java CCNSim config");
 			System.exit(-1);
 		}
 		
-		try
-		{
+		try {
 			// Parse the config file and run the simulator
 			Config config = Yaml.loadType(new File(args[0]), Config.class);
 			Util.error(config.toString());
@@ -47,18 +44,15 @@ public class CCNSim {
 				ex.printStackTrace();
 			}
 		}
-		catch (FileNotFoundException e)
-		{
+		catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.err.println("File not found: " + e.getMessage());
 		}
-		catch (NumberFormatException e)
-		{
+		catch (NumberFormatException e) {
 			e.printStackTrace();
 			System.err.println("Number parsing exception occurred: " + e.getMessage());
 		}
-		catch (IOException e)
-		{
+		catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("IO error occurred: " + e.getMessage());
 		}
