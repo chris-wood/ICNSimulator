@@ -33,6 +33,8 @@ public class CCNSim {
 			Config config = Yaml.loadType(new File(args[0]), Config.class);
 			Util.error(config.toString());
 			
+			// Create applications and then set up the topology
+			
 			// Construct the list of simulation components
 			List<Component> components = new ArrayList<Component>();
 			
