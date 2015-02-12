@@ -3,6 +3,9 @@ package ccn.network;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import json.JSONArray;
@@ -16,7 +19,7 @@ public class TopologyParser {
 		this.lines = lines;
 	}
 	
-	public TopologyParser getParserForFile(String fileName) throws FileNotFoundException {
+	public static TopologyParser getParserForFile(String fileName) throws FileNotFoundException {
 		Scanner scanner = new Scanner(new File(fileName));
 		
 		StringBuilder lines = new StringBuilder();
@@ -29,10 +32,12 @@ public class TopologyParser {
 		return parser;
 	}
 	
-	public Topology parse() {
+	public Topology parse() throws Exception {
 		JSONObject root = new JSONObject(lines);
 		
 		ArrayList<Node> nodeList = new ArrayList<Node>();
+		Map<String, List<String>> nodeInterfaceMap = new HashMap<String, List<String>>();
+		
 		JSONArray nodeContainer = root.getJSONArray("nodes");
 		for (int i = 0; i < nodeContainer.length(); i++) {
 			JSONObject nodeObject = nodeContainer.getJSONObject(i);
@@ -42,17 +47,40 @@ public class TopologyParser {
 			int xCoordinate = nodeObject.getInt("x-coord");
 			int yCoordinate = nodeObject.getInt("y-coord");
 			
+			nodeInterfaceMap.put(nodeId, new ArrayList<String>());
+			
 			JSONArray interfaces = nodeObject.getJSONArray("interfaces");
 			for (int j = 0; j < interfaces.length(); j++) {
 				JSONObject interfaceObject = interfaces.getJSONObject(j);
 				String interfaceId = interfaceObject.getString("interface_id");
-				String interfaceType = interfaceObject.getString("interface_type");
-				
-				
+				nodeInterfaceMap.get(nodeId).add(interfaceId);
 			}
+			
+			Point location = new Point(xCoordinate, yCoordinate);
+			Node node = null;
+			if (nodeType.equals("consumer")) {
+				node = new Consumer(nodeId, location); 
+			} else if (nodeType.equals("producer")) {
+				node = new Producer(nodeId, location);
+			} else if (nodeType.equals("router")) {
+				node = new Router(nodeId, location);
+			} else {
+				throw new Exception("Invalid node type: " + nodeType + ", expecting `consumer`, `router`, or `producer`");
+			}
+			
+			nodeList.add(node);
 		}
 		
 		JSONArray connectionContainer = root.getJSONArray("connections");
+		for (int i = 0; i < connectionContainer.length(); i++) {
+			JSONObject containerObject = connectionContainer.getJSONObject(i);
+			String sourceId = containerObject.getString("source_id");
+			String sourceInterface = containerObject.getString("source_interface");
+			String destId = containerObject.getString("destination_id");
+			String destInterface = containerObject.getString("destination_interface");
+			
+//			Node source = nodeInterfaceMap.get(key)
+		}
 		
 		return null;
 	}
