@@ -10,12 +10,4 @@ public abstract class Node extends Component {
 		super(identity);
 		this.location = location;
 	}
-	
-	public void addInputInterface(String identity) throws Exception {
-		this.addInputQueue(identity);
-	}
-
-	public void addOutputInterface(String identity) throws Exception {
-		this.addOutputQueue(identity);
-	}
 }

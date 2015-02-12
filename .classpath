@@ -2,9 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/Users/caw/Projects/JEvent/dependencies/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="/Users/caw/Projects/JEvent/dependencies/junit-4.12.jar"/>
-	<classpathentry kind="lib" path="/Users/caw/Projects/JEvent/dependencies/jyaml-1.3.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/JEvent"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JDispatch"/>
+	<classpathentry kind="lib" path="/Users/caw/Projects/JDispatch/dependencies/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="/Users/caw/Projects/JDispatch/dependencies/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="/Users/caw/Projects/JDispatch/dependencies/jyaml-1.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

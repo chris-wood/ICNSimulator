@@ -8,8 +8,8 @@ import org.ho.yaml.Yaml;
 
 import ccn.network.Topology;
 import ccn.network.TopologyParser;
-import dispatcher.Clock;
-import dispatcher.Dispatcher;
+import dispatch.Clock;
+import dispatch.Dispatcher;
 import framework.Component;
 
 public class Simulator extends Thread {
