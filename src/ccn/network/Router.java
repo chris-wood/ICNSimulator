@@ -12,14 +12,13 @@ public class Router extends Node {
 
 	@Override
 	protected void processInputEvent(Event event) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("router processing input");
+		this.sendEvent(interfaces.get(1), event);
 	}
 
 	@Override
 	protected void cycle(long currentTime) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Router " + this.identity + " cycling");
 	}
 
 }

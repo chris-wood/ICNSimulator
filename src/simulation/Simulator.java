@@ -46,7 +46,7 @@ public class Simulator extends Thread {
 	
 	public static void main(String[] args) {
 		try {
-			Configuration simultationConfig = (Configuration) Yaml.load(new File(args[1]));
+			Configuration simultationConfig = Yaml.loadType(new File(args[0]), Configuration.class);
 			TopologyParser topologyParser = TopologyParser.getParserForFile(args[1]);
 			
 			Simulator simulation = new Simulator(simultationConfig, topologyParser);

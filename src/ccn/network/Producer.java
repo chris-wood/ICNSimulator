@@ -18,8 +18,7 @@ public class Producer extends Node {
 
 	@Override
 	protected void cycle(long currentTime) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Producer " + this.identity + " cycling");
 	}
 
 }
