@@ -14,5 +14,9 @@ public class Topology {
 	public void addNode(Node node) {
 		nodes.add(node);
 	}
+	
+	public List<Node> getNodes() {
+		return nodes;
+	}
 
 }

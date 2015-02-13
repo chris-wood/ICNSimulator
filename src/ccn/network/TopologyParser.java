@@ -33,10 +33,12 @@ public class TopologyParser {
 	}
 	
 	public Topology parse() throws Exception {
+		Topology topology = new Topology();
+		
 		JSONObject root = new JSONObject(lines);
 		
 		ArrayList<Node> nodeList = new ArrayList<Node>();
-		Map<String, List<String>> nodeInterfaceMap = new HashMap<String, List<String>>();
+		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		
 		JSONArray nodeContainer = root.getJSONArray("nodes");
 		for (int i = 0; i < nodeContainer.length(); i++) {
@@ -47,28 +49,39 @@ public class TopologyParser {
 			int xCoordinate = nodeObject.getInt("x-coord");
 			int yCoordinate = nodeObject.getInt("y-coord");
 			
-			nodeInterfaceMap.put(nodeId, new ArrayList<String>());
-			
-			JSONArray interfaces = nodeObject.getJSONArray("interfaces");
-			for (int j = 0; j < interfaces.length(); j++) {
-				JSONObject interfaceObject = interfaces.getJSONObject(j);
+			JSONArray interfaceContainer = nodeObject.getJSONArray("interfaces");
+			List<String> interfaces = new ArrayList<String>();
+			for (int j = 0; j < interfaceContainer.length(); j++) {
+				JSONObject interfaceObject = interfaceContainer.getJSONObject(j);
 				String interfaceId = interfaceObject.getString("interface_id");
-				nodeInterfaceMap.get(nodeId).add(interfaceId);
+				interfaces.add(interfaceId);
 			}
 			
 			Point location = new Point(xCoordinate, yCoordinate);
 			Node node = null;
 			if (nodeType.equals("consumer")) {
-				node = new Consumer(nodeId, location); 
+				node = new Consumer(nodeId, location, interfaces); 
 			} else if (nodeType.equals("producer")) {
-				node = new Producer(nodeId, location);
+				node = new Producer(nodeId, location, interfaces);
 			} else if (nodeType.equals("router")) {
-				node = new Router(nodeId, location);
+				node = new Router(nodeId, location, interfaces);
 			} else {
 				throw new Exception("Invalid node type: " + nodeType + ", expecting `consumer`, `router`, or `producer`");
 			}
 			
 			nodeList.add(node);
+			topology.addNode(node);
+			nodeMap.put(nodeId, node);
+		}
+		
+		JSONArray channelContainer = root.getJSONArray("channels");
+		Map<String, Channel> channels = new HashMap<String, Channel>();
+		for (int i = 0; i < channelContainer.length(); i++) {
+			JSONObject channelObject = channelContainer.getJSONObject(i);
+			String channelId = channelObject.getString("channel_id");
+			int dataRate = channelObject.getInt("data_rate");
+			Channel channel = new Channel(channelId, dataRate);
+			channels.put(channelId, channel);
 		}
 		
 		JSONArray connectionContainer = root.getJSONArray("connections");
@@ -78,11 +91,16 @@ public class TopologyParser {
 			String sourceInterface = containerObject.getString("source_interface");
 			String destId = containerObject.getString("destination_id");
 			String destInterface = containerObject.getString("destination_interface");
+			String channelId = containerObject.getString("channel_id");
 			
-//			Node source = nodeInterfaceMap.get(key)
+			Node source = nodeMap.get(sourceId);
+			Node dest = nodeMap.get(destId);
+			
+			source.addDuplexQueue(sourceInterface, channels.get(channelId));
+			dest.addDuplexQueue(destInterface, channels.get(channelId));
 		}
 		
-		return null;
+		return topology;
 	}
 	
 }

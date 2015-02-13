@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.ho.yaml.Yaml;
 
+import ccn.network.Node;
 import ccn.network.Topology;
 import ccn.network.TopologyParser;
 import dispatch.Clock;
@@ -26,9 +27,15 @@ public class Simulator extends Thread {
 	public void run() {
 		try {
 			Topology topology = topologyParser.parse();
-		
+			
+			List<Node> nodes = topology.getNodes();
 			List<Component> components = new ArrayList<Component>();
-			Dispatcher dispatcher = new Dispatcher(config.time, null);
+			for (int i = 0; i < nodes.size(); i++) {
+				components.add(nodes.get(i));
+			}
+			
+			Dispatcher dispatcher = new Dispatcher(config.time, components);
+			
 			System.err.println("Starting dispatcher");
 			dispatcher.run();
 			System.err.println("Ending dispatcher");
