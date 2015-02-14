@@ -16,7 +16,9 @@ public class Router extends Node {
 
 	@Override
 	protected void processInputEvent(Event event, long time) {
-		broadcastEvent(event);
+		Event newEvent = event.copy();
+		broadcastEvent(newEvent);
+		event.setProcessed();
 	}
 
 	@Override
