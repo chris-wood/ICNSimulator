@@ -15,7 +15,8 @@
             "x-coord": "1",
             "y-coord": "2",
             "interfaces": [
-                { "interface_id": "interface1" }
+                { "interface_id": "interface1" },
+                { "interface_id": "interface2" }
             ]
         },
         {
@@ -28,30 +29,18 @@
             ]
         }
     ],
-    "channels": [
-        {
-            "channel_id": "channel1",
-            "data_rate": "100"
-        },
-        {
-            "channel_id": "channel2",
-            "data_rate": "100"
-        }
-    ],
     "connections": [
         {
             "source_id": "node1",
             "source_interface": "interface1",
             "destination_id": "node2",
             "destination_interface": "interface1",
-            "channel_id": "channel1"
         },
         {
             "source_id": "node2",
-            "source_interface": "interface1",
+            "source_interface": "interface2",
             "destination_id": "node3",
             "destination_interface": "interface1",
-            "channel_id": "channel2"
         }
     ]
 }

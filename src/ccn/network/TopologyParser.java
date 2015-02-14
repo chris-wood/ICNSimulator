@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import framework.Channel;
 import json.JSONArray;
 import json.JSONObject;
 
@@ -74,15 +75,15 @@ public class TopologyParser {
 			nodeMap.put(nodeId, node);
 		}
 		
-		JSONArray channelContainer = root.getJSONArray("channels");
-		Map<String, Channel> channels = new HashMap<String, Channel>();
-		for (int i = 0; i < channelContainer.length(); i++) {
-			JSONObject channelObject = channelContainer.getJSONObject(i);
-			String channelId = channelObject.getString("channel_id");
-			int dataRate = channelObject.getInt("data_rate");
-			Channel channel = new Channel(channelId, dataRate);
-			channels.put(channelId, channel);
-		}
+//		JSONArray channelContainer = root.getJSONArray("channels");
+//		Map<String, CCNChannel> channels = new HashMap<String, CCNChannel>();
+//		for (int i = 0; i < channelContainer.length(); i++) {
+//			JSONObject channelObject = channelContainer.getJSONObject(i);
+//			String channelId = channelObject.getString("channel_id");
+//			int dataRate = channelObject.getInt("data_rate");
+//			CCNChannel channel = new CCNChannel(channelId, dataRate);
+//			channels.put(channelId, channel);
+//		}
 		
 		JSONArray connectionContainer = root.getJSONArray("connections");
 		for (int i = 0; i < connectionContainer.length(); i++) {
@@ -91,16 +92,16 @@ public class TopologyParser {
 			String sourceInterface = containerObject.getString("source_interface");
 			String destId = containerObject.getString("destination_id");
 			String destInterface = containerObject.getString("destination_interface");
-			String channelId = containerObject.getString("channel_id");
 			
 			Node source = nodeMap.get(sourceId);
+			Channel sourceChannel = source.getChannelByName(sourceInterface);
 			Node dest = nodeMap.get(destId);
+			Channel destChannel = dest.getChannelByName(destInterface);
 			
-			source.addDuplexQueue(sourceInterface, channels.get(channelId));
-			dest.addDuplexQueue(destInterface, channels.get(channelId));
+			// tie them up
+			sourceChannel.connect(destChannel);
 		}
 		
 		return topology;
 	}
-	
 }

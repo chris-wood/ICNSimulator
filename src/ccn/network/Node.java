@@ -3,6 +3,7 @@ package ccn.network;
 import java.util.ArrayList;
 import java.util.List;
 
+import framework.Channel;
 import framework.Component;
 
 public abstract class Node extends Component {
@@ -15,5 +16,9 @@ public abstract class Node extends Component {
 		this.location = location;
 		this.interfaces = new ArrayList<String>();
 		this.interfaces.addAll(interfaces);
+		for (String interfaceId : interfaces) {
+			Channel channel = new Channel(interfaceId);
+			this.addChannelInterface(channel.getIdentity(), channel);
+		}
 	}
 }

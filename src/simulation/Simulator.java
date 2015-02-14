@@ -27,14 +27,12 @@ public class Simulator extends Thread {
 	public void run() {
 		try {
 			Topology topology = topologyParser.parse();
+			Dispatcher dispatcher = new Dispatcher(config.time);
 			
 			List<Node> nodes = topology.getNodes();
-			List<Component> components = new ArrayList<Component>();
-			for (int i = 0; i < nodes.size(); i++) {
-				components.add(nodes.get(i));
+			for (Node node : nodes) {
+				node.setDispatcher(dispatcher);
 			}
-			
-			Dispatcher dispatcher = new Dispatcher(config.time, components);
 			
 			System.err.println("Starting dispatcher");
 			dispatcher.run();
