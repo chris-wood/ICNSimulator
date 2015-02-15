@@ -1,0 +1,13 @@
+ {
+	"topologies": "1",
+	"plot": "True",
+	"dimensions": "5x5",
+	"routers": "3",
+	"routers-links": "2",
+	"consumers": "1",
+	"consumers-links": "1",
+	"producers": "1",
+	"producers-links": "1",
+	"channels": "2",
+	"channel-rates": "100,1000"
+}
