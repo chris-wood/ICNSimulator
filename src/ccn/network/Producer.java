@@ -2,12 +2,16 @@ package ccn.network;
 
 import java.util.List;
 
+import ccn.stack.NetworkStack;
 import framework.Event;
 
 public class Producer extends Node {
+	
+	protected NetworkStack stack;
 
 	public Producer(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
+		stack = NetworkStack.buildProducerStack();
 	}
 
 	@Override

@@ -1,5 +1,9 @@
 package ccn.message;
 
-public class ContentObject {
+public class ContentObject extends Message {
+
+	public ContentObject(String name) {
+		super(name);
+	}
 
 }

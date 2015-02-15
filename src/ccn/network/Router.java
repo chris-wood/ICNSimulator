@@ -2,12 +2,16 @@ package ccn.network;
 
 import java.util.List;
 
+import ccn.stack.NetworkStack;
 import framework.Event;
 
 public class Router extends Node {
+	
+	protected NetworkStack stack;
 
 	public Router(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
+		stack = NetworkStack.buildRouterStack();
 	}
 
 	@Override

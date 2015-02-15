@@ -1,5 +1,9 @@
 package ccn.message;
 
-public class Interest {
+public class Interest extends Message {
+
+	public Interest(String name) {
+		super(name);
+	}
 
 }

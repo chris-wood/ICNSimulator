@@ -1,5 +1,11 @@
 package ccn.message;
 
-public class Message {
+public abstract class Message {
 
+	public String name;
+	
+	public Message(String name) {
+		this.name = name;
+	}
+	
 }
