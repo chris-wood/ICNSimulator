@@ -7,6 +7,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from collections import deque
 
 
 def usage(tool_name):
@@ -161,7 +162,8 @@ def main(argv):
     p_startindex = routers + consumers + 1
     p_endindex = routers + consumers + producers
 
-    for fn in range(1, topologies + 1):
+    fn = 1
+    while fn < topologies + 1:
         topology = {"nodes": [], "channels": [], "connections": []}
 
         # Add channels
@@ -172,6 +174,8 @@ def main(argv):
                     0, len(channelRates) - 1)])})
 
         # Add routers
+        nodes = {}
+        connections = []
         routersDict = {}
         routersConnections = []
         for r in range(r_startindex, r_endindex + 1):
@@ -188,6 +192,7 @@ def main(argv):
                 "y-coord": str(yCoord),
                 "interfaces": [{"interface_id": "interface1"}]})
             routersDict[r] = [xCoord, yCoord]
+            nodes[r] = [xCoord, yCoord, "router"]
 
         # Connect each routers to nearest N neighbors
         for r in range(r_startindex, r_endindex + 1):
@@ -207,6 +212,7 @@ def main(argv):
                         "channel_id": "channel" + str(random.randint(
                             1, channels))})
                     routersConnections.append(tmp)
+                    connections.append([r, nearest[i][0]])
 
         # Calculate the area where routers are located
         routerMinX = routersDict[r_startindex][0]
@@ -227,8 +233,6 @@ def main(argv):
         routersAreaY = routerMaxY - routerMinY
 
         # Add consumers
-        consumersDict = {}
-        consumersConnections = []
         for c in range(c_startindex, c_endindex + 1):
             xCoord = round(random.uniform(0,
                                           routerMinX + maxXCoord - 
@@ -246,7 +250,7 @@ def main(argv):
                 "x-coord": str(xCoord),
                 "y-coord": str(yCoord),
                 "interfaces": [{"interface_id": "interface1"}]})
-            consumersDict[c] = [xCoord, yCoord]
+            nodes[c] = [xCoord, yCoord, "consumer"]
 
             # Connect consumer to nearest N routers
             nearest = nearestN(routersDict, -1,
@@ -261,12 +265,9 @@ def main(argv):
                     "destination_interface": "interface1",
                     "channel_id": "channel" + str(random.randint(
                         1, channels))})
-                consumersConnections.append(str(nearest[i][0]) + "-" + 
-                                            str(c))
+                connections.append([nearest[i][0], c])
 
         # Add producers
-        producersDict = {}
-        producersConnections = []
         for p in range(p_startindex, p_endindex + 1):
             xCoord = round(random.uniform(0,
                                           routerMinX + maxXCoord - 
@@ -284,7 +285,7 @@ def main(argv):
                 "x-coord": str(xCoord),
                 "y-coord": str(yCoord),
                 "interfaces": [{"interface_id": "interface1"}]})
-            producersDict[p] = [xCoord, yCoord]
+            nodes[p] = [xCoord, yCoord, "producer"]
 
             # Connect producer to nearest N routers
             nearest = nearestN(routersDict, -1,
@@ -299,8 +300,11 @@ def main(argv):
                     "destination_interface": "interface1",
                     "channel_id": "channel" + str(random.randint(
                         1, channels))})
-                producersConnections.append(str(nearest[i][0]) + "-" + 
-                                            str(p))
+                connections.append([nearest[i][0], p])
+
+        # Verify that the graph has a single component
+        if not isConnected(nodes, connections):
+            continue
 
         # Write out json file
         with open(outputFile + "_" + str(fn) + ".json", "w") as ofile:
@@ -312,48 +316,38 @@ def main(argv):
             fig = plt.figure()
             splt = fig.add_subplot(1, 1, 1)
             # Plotting all connections
-            for rconn in routersConnections:
-                x = [routersDict[int(rconn.split("-")[0])][0],
-                     routersDict[int(rconn.split("-")[1])][0]]
-                y = [routersDict[int(rconn.split("-")[0])][1],
-                     routersDict[int(rconn.split("-")[1])][1]]
-                splt.plot(x, y, '-k')
-            for cconn in consumersConnections:
-                x = [routersDict[int(cconn.split("-")[0])][0],
-                     consumersDict[int(cconn.split("-")[1])][0]]
-                y = [routersDict[int(cconn.split("-")[0])][1],
-                     consumersDict[int(cconn.split("-")[1])][1]]
-                splt.plot(x, y, '-k')
-            for pconn in producersConnections:
-                x = [routersDict[int(pconn.split("-")[0])][0],
-                     producersDict[int(pconn.split("-")[1])][0]]
-                y = [routersDict[int(pconn.split("-")[0])][1],
-                     producersDict[int(pconn.split("-")[1])][1]]
+            for conn in connections:
+                x = [nodes[conn[0]][0],
+                     nodes[conn[1]][0]]
+                y = [nodes[conn[0]][1],
+                     nodes[conn[1]][1]]
                 splt.plot(x, y, '-k')
 
-            # Plotting routers
-            for r in routersDict:
-                splt.plot(routersDict[r][0], routersDict[r][1], "or", 
-                         ms=10, mfc="red", mec="black", mew=2)
+            # Plotting nodes
+            for n in nodes:
+                faceColor = ""
+                if nodes[n][2] == "router":
+                     faceColor = "red"
+                elif nodes[n][2] == "consumer":
+                     faceColor = "blue"
+                elif nodes[n][2] == "producer":
+                     faceColor = "green"
 
-            # Plotting consumers
-            for c in consumersDict:
-                splt.plot(consumersDict[c][0], consumersDict[c][1], "ob", 
-                         ms=10, mfc="blue", mec="black", mew=2)
+                splt.plot(nodes[n][0], nodes[n][1], "or", 
+                          ms=10, mfc=faceColor, 
+                          mec="black", mew=2)
 
-            # Plotting consumers
-            for p in producersDict:
-                splt.plot(producersDict[p][0], producersDict[p][1], "og", 
-                         ms=10, mfc="green", mec="black", mew=2)
-
-            splt.set_xlim([-1, maxXCoord + 1])
-            splt.set_ylim([-1, maxYCoord + 1])
+            splt.set_xlim([-.5, maxXCoord + .5])
+            splt.set_ylim([-.5, maxYCoord + .5])
             splt.axes.get_xaxis().set_visible(False)
             splt.axes.get_yaxis().set_visible(False)
             splt.grid()
             pdf = PdfPages(outputFile + "_" + str(fn) + ".pdf")
             pdf.savefig(fig)
             pdf.close()
+
+            fn = fn + 1
+
 
 def nearestN(routersDict, index, xCoord, yCoord, N):
     distances = []
@@ -366,6 +360,40 @@ def nearestN(routersDict, index, xCoord, yCoord, N):
 
     distances.sort(key=lambda x: x[1])
     return distances[:N]
+
+
+def isConnected(vertices, connections):
+    edges = {}
+    for conn in connections:
+
+        if conn[0] not in edges:
+            edges[conn[0]] = []
+        edges[conn[0]].append(conn[1])
+
+        if conn[1] not in edges:
+            edges[conn[1]] = []
+        edges[conn[1]].append(conn[0])
+
+    colors = {}
+    for v in vertices:
+        colors[v] = "w"
+
+    colors[1] = "g"
+    count = 0
+    queue = deque([1])
+    while len(queue) is not 0:
+        u = queue.popleft()
+        for v in edges[u]:
+            if colors[v] == "w":
+                colors[v] = "g"
+                queue.append(v)
+        colors[u] = "b"
+        count = count + 1
+
+    if count == len(vertices):
+        return True
+    else:
+        return False
 
 if __name__ == "__main__":
     main(sys.argv)
