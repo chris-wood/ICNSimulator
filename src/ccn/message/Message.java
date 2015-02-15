@@ -1,11 +1,17 @@
 package ccn.message;
 
-public abstract class Message {
+import framework.Event;
 
-	public String name;
+public class Message extends Event {
+
+	protected String name;
 	
 	public Message(String name) {
 		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
 	}
 	
 }

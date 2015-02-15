@@ -2,6 +2,7 @@ package ccn.network;
 
 import java.util.List;
 
+import ccn.message.Message;
 import ccn.stack.NetworkStack;
 import framework.Event;
 
@@ -15,11 +16,22 @@ public class Router extends Node {
 	}
 
 	@Override
-	protected void processInputEvent(Event event, long time) {
-		Event newEvent = event.copy();
-		System.out.println("Router " + identity + " is forwarding " + event + " at time " + time);
-		broadcastEvent(newEvent);
+	protected void processInputEventFromInterface(String queueKey, Event event, long time) {
+		Message message = (Message) event;
 		event.setProcessed();
+		
+		if (stack.getContentStore().hashContent(message.getName())) {
+			// return content back to downstream interface
+		} else {
+			if (stack.getPendingInterestTable().isInterestPresent(message.getName())) {
+				stack.getPendingInterestTable().insertInterest(message.getName(), null, message);
+				// add to PIT
+			}
+			// forward using FIB 
+		} 
+		
+//		System.out.println("Router " + identity + " is forwarding " + event + " at time " + time);
+//		broadcastEvent(message);
 	}
 
 	@Override

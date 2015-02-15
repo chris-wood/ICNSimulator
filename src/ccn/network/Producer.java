@@ -15,7 +15,7 @@ public class Producer extends Node {
 	}
 
 	@Override
-	protected void processInputEvent(Event event, long time) {
+	protected void processInputEventFromInterface(String queueKey, Event event, long time) {
 		event.setProcessed();
 		System.out.println("Producer " + identity + " received " + event + " at time " + time);
 	}

@@ -19,6 +19,9 @@ public class PendingInterestTable {
 	}
 	
 	public void insertInterest(String name, String interfaceId, Message message) {
+		if (!isInterestPresent(name)) {
+			pit.put(name, new PendingInterestTableEntry());
+		}
 		pit.get(name).addMessageFromInterface(interfaceId, message);
 	}
 	

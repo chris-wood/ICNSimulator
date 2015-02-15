@@ -2,6 +2,7 @@ package ccn.network;
 
 import java.util.List;
 
+import ccn.message.Message;
 import ccn.stack.NetworkStack;
 import framework.Event;
 
@@ -15,12 +16,14 @@ public class Consumer extends Node {
 	}
 
 	@Override
-	protected void processInputEvent(Event event, long time) {
+	protected void processInputEventFromInterface(String queueKey, Event event, long time) {
 		
 	}
 
 	@Override
 	protected void runComponent(long time) {
+		Message event = new Message("lci:/interest");
+		broadcastEvent(event);
 	}
 
 }

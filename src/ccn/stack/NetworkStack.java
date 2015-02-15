@@ -14,6 +14,18 @@ public class NetworkStack {
 		this.pit = pit;
 	}
 	
+	public ContentStore getContentStore() {
+		return contentStore;
+	}
+	
+	public ForwardingInformationBase getForwardingInformationBase() {
+		return fib;
+	}
+	
+	public PendingInterestTable getPendingInterestTable() {
+		return pit;
+	}
+	
 	public static NetworkStack buildRouterStack() {
 		ContentStore cs = new ContentStore(CachePolicy.CachePolicy_LRU);
 		ForwardingInformationBase fib = new ForwardingInformationBase();
