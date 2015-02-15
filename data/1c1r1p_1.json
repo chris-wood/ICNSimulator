@@ -1,0 +1,63 @@
+{
+    "channels": [
+        {
+            "channel_id": "channel1",
+            "data_rate": "100"
+        },
+        {
+            "channel_id": "channel2",
+            "data_rate": "100"
+        }
+    ],
+    "connections": [
+        {
+            "channel_id": "channel2",
+            "destination_id": "node1",
+            "destination_interface": "interface1",
+            "source_id": "node2",
+            "source_interface": "interface1"
+        },
+        {
+            "channel_id": "channel1",
+            "destination_id": "node1",
+            "destination_interface": "interface1",
+            "source_id": "node3",
+            "source_interface": "interface1"
+        }
+    ],
+    "nodes": [
+        {
+            "interfaces": [
+                {
+                    "interface_id": "interface1"
+                }
+            ],
+            "node_id": "node1",
+            "node_type": "router",
+            "x-coord": "0.52",
+            "y-coord": "1.58"
+        },
+        {
+            "interfaces": [
+                {
+                    "interface_id": "interface1"
+                }
+            ],
+            "node_id": "node2",
+            "node_type": "consumer",
+            "x-coord": "0.91",
+            "y-coord": "2.79"
+        },
+        {
+            "interfaces": [
+                {
+                    "interface_id": "interface1"
+                }
+            ],
+            "node_id": "node3",
+            "node_type": "producer",
+            "x-coord": "3.6",
+            "y-coord": "2.61"
+        }
+    ]
+}
