@@ -38,6 +38,8 @@ public abstract class Node extends Component {
 			processContentObjectFromInterface(interfaceId, (ContentObject) event, time);
 		} else if (event instanceof VirtualInterest) {
 			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) event, time);
+		} else {
+			System.err.println("Invalid message type received at Node " + identity + ": " + event);
 		}
 	}
 }

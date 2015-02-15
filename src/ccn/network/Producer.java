@@ -6,7 +6,6 @@ import ccn.message.ContentObject;
 import ccn.message.Interest;
 import ccn.message.VirtualInterest;
 import ccn.stack.NetworkStack;
-import framework.Event;
 
 public class Producer extends Node {
 	
@@ -19,27 +18,22 @@ public class Producer extends Node {
 
 	@Override
 	protected void runComponent(long time) {
-		
+		// we do nothing but respond to interests
 	}
 
 	@Override
-	protected void processInterestFromInterface(String interfaceId,
-			Interest interest, long time) {
-		// TODO Auto-generated method stub
-		
+	protected void processInterestFromInterface(String interfaceId, Interest interest, long time) {
+		ContentObject content = new ContentObject(interest.getName());
+		System.out.println("Received interest " + interest + ", responding with content object " + content);
+		interest.setProcessed();
+		send(interfaceId, content);
 	}
 
 	@Override
-	protected void processVirtualInterestFromInterface(String interfaceId,
-			VirtualInterest interest, long time) {
-		// TODO Auto-generated method stub
-		
+	protected void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time) {
 	}
 
 	@Override
-	protected void processContentObjectFromInterface(String interfaceId,
-			ContentObject content, long time) {
-		// TODO Auto-generated method stub
-		
+	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
 	}
 }

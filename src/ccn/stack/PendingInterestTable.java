@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
-import ccn.message.Message;
+import ccn.message.Interest;
 
 public class PendingInterestTable {
 	
@@ -18,11 +18,11 @@ public class PendingInterestTable {
 		return pit.containsKey(name);
 	}
 	
-	public void insertInterest(String name, String interfaceId, Message message) {
+	public void insertInterest(String name, String interfaceId, Interest interest) {
 		if (!isInterestPresent(name)) {
 			pit.put(name, new PendingInterestTableEntry());
 		}
-		pit.get(name).addMessageFromInterface(interfaceId, message);
+		pit.get(name).addInterestFromInterface(interfaceId, interest);
 	}
 	
 	public List<String> clearEntryAndGetEntries(String name) {

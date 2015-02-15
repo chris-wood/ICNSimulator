@@ -16,7 +16,17 @@ public class ForwardingInformationBase {
 	}
 	
 	public String index(String name) {
-		return routingTable.get(name);
+		String matchingPrefix = "";
+		for (String prefix : routingTable.keySet()) {
+			if (name.startsWith(prefix) && prefix.length() > matchingPrefix.length()) {
+				matchingPrefix = prefix;
+			}
+		}
+		return routingTable.get(matchingPrefix);
+	}
+	
+	public void installRoute(String prefix, String interfaceId) {
+		routingTable.put(prefix, interfaceId);
 	}
 
 }

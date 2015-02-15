@@ -6,4 +6,8 @@ public class ContentObject extends Message {
 		super(name);
 	}
 
+	@Override
+	public String toString() {
+		return "CONTENT[" + name + "]";
+	}
 }

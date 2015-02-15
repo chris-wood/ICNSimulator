@@ -3,22 +3,21 @@ package ccn.stack;
 import java.util.ArrayList;
 import java.util.List;
 
-import ccn.message.Message;
+import ccn.message.Interest;
 
 public class PendingInterestTableEntry {
 	
-	private String name;
 	private List<String> interfaces;
-	private List<Message> messages;
+	private List<Interest> messages;
 	
 	public PendingInterestTableEntry() {
 		this.interfaces = new ArrayList<String>();
-		this.messages = new ArrayList<Message>();
+		this.messages = new ArrayList<Interest>();
 	}
 	
-	public void addMessageFromInterface(String interfaceId, Message message) {
+	public void addInterestFromInterface(String interfaceId, Interest interest) {
 		interfaces.add(interfaceId);
-		messages.add(message);
+		messages.add(interest);
 	}
 	
 	public List<String> getInterfaces() {
