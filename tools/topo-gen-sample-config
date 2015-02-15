@@ -1,0 +1,13 @@
+{
+	"topologies": "number of generated topologoes",
+	"plot": "True/False, plot topology to pdf",
+	"dimensions": "e.g. 10x10",
+	"routers": "number of routers",
+	"routers-links": "routers links, e.g. 2 or 1-2",
+	"consumers": "number of consumers",
+	"consumers-links": "consumers links, e.g. 2 or 1-2",
+	"producers": "number of producers",
+	"producers-links": "producers links, e.g. 2 or 1-2",
+	"channels": "number of channels",
+	"channel-rates": "list of channel rate, e.g. 10,100,1000"
+}
