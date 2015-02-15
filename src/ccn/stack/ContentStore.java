@@ -5,12 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import ccn.message.Message;
+import ccn.message.ContentObject;
 
 public class ContentStore {
 	
 	private CachePolicy policy;
-	private Map<String, Message> store;
+	private Map<String, ContentObject> store;
 	private List<String> usageAttempts;
 	
 	public enum CachePolicy { 
@@ -21,7 +21,7 @@ public class ContentStore {
 	
 	public ContentStore(CachePolicy policy) {
 		this.policy = policy;
-		this.store = new HashMap<String, Message>();
+		this.store = new HashMap<String, ContentObject>();
 		this.usageAttempts = new ArrayList<String>();
 	}
 	
@@ -29,7 +29,11 @@ public class ContentStore {
 		return store.containsKey(store);
 	}
 	
-	public Message retrieveContentByName(String name) {
+	public void insertContent(String name, ContentObject contentObject) {
+		store.put(name, contentObject);
+	}
+	
+	public ContentObject retrieveContentByName(String name) {
 		return store.get(name);
 	}
 	

@@ -2,7 +2,10 @@ package ccn.network;
 
 import java.util.List;
 
+import ccn.message.ContentObject;
+import ccn.message.Interest;
 import ccn.message.Message;
+import ccn.message.VirtualInterest;
 import ccn.stack.NetworkStack;
 import framework.Event;
 
@@ -16,26 +19,32 @@ public class Router extends Node {
 	}
 
 	@Override
-	protected void processInputEventFromInterface(String queueKey, Event event, long time) {
-		Message message = (Message) event;
-		event.setProcessed();
+	protected void runComponent(long time) {
 		
-		if (stack.getContentStore().hashContent(message.getName())) {
-			// return content back to downstream interface
-		} else {
-			if (stack.getPendingInterestTable().isInterestPresent(message.getName())) {
-				stack.getPendingInterestTable().insertInterest(message.getName(), null, message);
-				// add to PIT
-			}
-			// forward using FIB 
-		} 
-		
-//		System.out.println("Router " + identity + " is forwarding " + event + " at time " + time);
-//		broadcastEvent(message);
 	}
 
 	@Override
-	protected void runComponent(long time) {
-		
+	protected void processInterestFromInterface(String interfaceId, Interest interest, long time) {
+		if (stack.getContentStore().hashContent(interest.getName())) {
+			ContentObject cachedMessage = stack.getContentStore().retrieveContentByName(interest.getName());
+			send(interfaceId, cachedMessage);
+		} else {
+			if (stack.getPendingInterestTable().isInterestPresent(interest.getName())) {
+				stack.getPendingInterestTable().insertInterest(interest.getName(), null, interest);
+			}
+			String outputInterface = stack.getForwardingInformationBase().index(interest.getName());
+			send(outputInterface, interest);
+		} 
+	}
+
+	@Override
+	protected void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time) {
+		// TODO: implement forwarding logic
+	}
+
+	@Override
+	protected void processContentObjectFromInterface(String interfaceId,
+			ContentObject content, long time) {
+		stack.getContentStore().insertContent(content.getName(), content);
 	}
 }
