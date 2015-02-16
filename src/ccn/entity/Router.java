@@ -56,7 +56,7 @@ public class Router extends Node {
 		
 		List<String> downstreamInterfaces = stack.getPendingInterestTable().clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
-			ContentObject newContentObject = new ContentObject(content.getName());
+			ContentObject newContentObject = new ContentObject(content.getName(), content.getPayload());
 			send(downstreamInterface, newContentObject);
 		}
 	}

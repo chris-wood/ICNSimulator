@@ -6,9 +6,14 @@ public class Interest extends Message {
 		super(name);
 	}
 	
+	public Interest(String name, byte[] payload) {
+		super(name);
+		super.payload = new MessagePayload(payload);
+	}
+	
 	@Override
 	public String toString() {
-		return "INTEREST[" + name + "]";
+		return "INTEREST[" + header.getName() + "]";
 	}
 
 }

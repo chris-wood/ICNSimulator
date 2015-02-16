@@ -1,6 +1,7 @@
 package ccn.entity;
 
 import java.util.List;
+import java.util.Random;
 
 import ccn.entity.stack.NetworkStack;
 import ccn.message.ContentObject;
@@ -24,7 +25,11 @@ public class Producer extends Node {
 
 	@Override
 	protected void processInterestFromInterface(String interfaceId, Interest interest, long time) {
-		ContentObject content = new ContentObject(interest.getName());
+		byte[] payload = new byte[20];
+		Random rng = new Random();
+		rng.nextBytes(payload);
+		
+		ContentObject content = new ContentObject(interest.getName(), payload);
 		System.out.println("Received interest " + interest + ", responding with content object " + content);
 		interest.setProcessed();
 		send(interfaceId, content);
