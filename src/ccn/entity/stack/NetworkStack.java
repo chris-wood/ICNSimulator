@@ -1,6 +1,9 @@
-package ccn.stack;
+package ccn.entity.stack;
 
-import ccn.stack.ContentStore.CachePolicy;
+import ccn.entity.stack.internal.ContentStore;
+import ccn.entity.stack.internal.ForwardingInformationBase;
+import ccn.entity.stack.internal.PendingInterestTable;
+import ccn.entity.stack.internal.ContentStore.CachePolicy;
 
 public class NetworkStack {
 	

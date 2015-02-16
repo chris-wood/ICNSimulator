@@ -1,4 +1,4 @@
-package ccn.network;
+package ccn.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import ccn.message.ContentObject;
 import ccn.message.Interest;
 import ccn.message.VirtualInterest;
+import ccn.network.Point;
 import framework.Channel;
 import framework.Component;
 import framework.Event;

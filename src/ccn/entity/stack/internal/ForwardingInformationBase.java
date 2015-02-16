@@ -1,4 +1,4 @@
-package ccn.stack;
+package ccn.entity.stack.internal;
 
 import java.util.HashMap;
 import java.util.Map;

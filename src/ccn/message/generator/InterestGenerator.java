@@ -1,4 +1,4 @@
-package ccn.message.generators;
+package ccn.message.generator;
 
 public class InterestGenerator { 
 

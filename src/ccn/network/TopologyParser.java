@@ -8,9 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import ccn.entity.Consumer;
+import ccn.entity.Node;
+import ccn.entity.Producer;
+import ccn.entity.Router;
+import util.json.JSONArray;
+import util.json.JSONObject;
 import framework.Channel;
-import json.JSONArray;
-import json.JSONObject;
 
 public class TopologyParser {
 	

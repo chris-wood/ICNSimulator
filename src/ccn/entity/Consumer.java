@@ -1,11 +1,12 @@
-package ccn.network;
+package ccn.entity;
 
 import java.util.List;
 
+import ccn.entity.stack.NetworkStack;
 import ccn.message.ContentObject;
 import ccn.message.Interest;
 import ccn.message.VirtualInterest;
-import ccn.stack.NetworkStack;
+import ccn.network.Point;
 
 public class Consumer extends Node {
 	
