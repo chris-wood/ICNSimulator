@@ -15,7 +15,7 @@ public class Consumer extends Node {
 
 	public Consumer(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
-		stack = NetworkStack.buildConsumerStack();
+		stack = NetworkStack.buildConsumerStack(this);
 	}
 
 	@Override

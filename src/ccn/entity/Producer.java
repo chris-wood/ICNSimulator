@@ -15,7 +15,7 @@ public class Producer extends Node {
 
 	public Producer(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
-		stack = NetworkStack.buildProducerStack();
+		stack = NetworkStack.buildProducerStack(this);
 	}
 
 	@Override
