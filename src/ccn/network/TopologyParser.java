@@ -67,7 +67,13 @@ public class TopologyParser {
 			if (nodeType.equals("consumer")) {
 				node = new Consumer(nodeId, location, interfaces); 
 			} else if (nodeType.equals("producer")) {
-				node = new Producer(nodeId, location, interfaces);
+				JSONArray prefixContainer = nodeObject.getJSONArray("prefixes");
+				List<String> prefixes = new ArrayList<String>();
+				for (int j = 0; j < prefixContainer.length(); j++) {
+					prefixes.add(prefixContainer.getString(j));
+				}
+				
+				node = new Producer(nodeId, location, interfaces, prefixes);
 			} else if (nodeType.equals("router")) {
 				node = new Router(nodeId, location, interfaces);
 			} else {
@@ -78,16 +84,6 @@ public class TopologyParser {
 			topology.addNode(node);
 			nodeMap.put(nodeId, node);
 		}
-		
-//		JSONArray channelContainer = root.getJSONArray("channels");
-//		Map<String, CCNChannel> channels = new HashMap<String, CCNChannel>();
-//		for (int i = 0; i < channelContainer.length(); i++) {
-//			JSONObject channelObject = channelContainer.getJSONObject(i);
-//			String channelId = channelObject.getString("channel_id");
-//			int dataRate = channelObject.getInt("data_rate");
-//			CCNChannel channel = new CCNChannel(channelId, dataRate);
-//			channels.put(channelId, channel);
-//		}
 		
 		JSONArray connectionContainer = root.getJSONArray("connections");
 		for (int i = 0; i < connectionContainer.length(); i++) {

@@ -26,6 +26,9 @@
             "y-coord": "2",
             "interfaces": [
                 { "interface_id": "interface1" }
+            ],
+            "prefixes" : [
+            	"lci:/"
             ]
         }
     ],

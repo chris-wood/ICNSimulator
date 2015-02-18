@@ -5,6 +5,8 @@ import java.util.List;
 
 import ccn.message.ContentObject;
 import ccn.message.Interest;
+import ccn.message.NACK;
+import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.Point;
 import framework.Channel;
@@ -27,6 +29,8 @@ public abstract class Node extends Component {
 		}
 	}
 	
+	protected abstract void processNACKFromInterface(String interfaceId, NACK nack, long time);
+	protected abstract void processRIPMessageFromInterface(String interfaceId, RIPMessage message, long time);
 	protected abstract void processInterestFromInterface(String interfaceId, Interest interest, long time);
 	protected abstract void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time);
 	protected abstract void processContentObjectFromInterface(String interfaceId, ContentObject content, long time);
@@ -39,6 +43,10 @@ public abstract class Node extends Component {
 			processContentObjectFromInterface(interfaceId, (ContentObject) event, time);
 		} else if (event instanceof VirtualInterest) {
 			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) event, time);
+		} else if (event instanceof NACK) {
+			processNACKFromInterface(interfaceId, (NACK) event, time);
+		} else if (event instanceof RIPMessage) {
+			processRIPMessageFromInterface(interfaceId, (RIPMessage) event, time);
 		} else {
 			System.err.println("Invalid message type received at Node " + identity + ": " + event);
 		}

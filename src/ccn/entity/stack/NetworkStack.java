@@ -2,17 +2,15 @@ package ccn.entity.stack;
 
 import java.util.List;
 
-import ccn.entity.Consumer;
 import ccn.entity.Node;
-import ccn.entity.Producer;
-import ccn.entity.Router;
 import ccn.entity.stack.internal.ContentStore;
 import ccn.entity.stack.internal.ForwardingInformationBase;
 import ccn.entity.stack.internal.PendingInterestTable;
 import ccn.entity.stack.internal.ContentStore.CachePolicy;
 import ccn.message.ContentObject;
 import ccn.message.Interest;
-import ccn.message.Message;
+import ccn.message.NACK;
+import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 
 public class NetworkStack {
@@ -29,8 +27,20 @@ public class NetworkStack {
 		this.pit = pit;
 	}
 	
-	public ContentStore getContentStore() {
-		return contentStore;
+	public void processNACK(String interfaceId, NACK nack) {
+		nack.setProcessed();
+		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(nack.getName());
+		for (String downstreamInterface : downstreamInterfaces) {
+			NACK newNack = new NACK(nack.getName(), nack.getError());
+			node.send(downstreamInterface, newNack);
+		}
+	}
+	
+	public void processRIPMessage(String interfaceId, RIPMessage routeMessage) {
+		routeMessage.setProcessed();
+		RIPMessage newMessage = new RIPMessage(routeMessage.getName(), routeMessage.getPrefix());
+		fib.installRoute(routeMessage.getPrefix(), interfaceId);
+		node.broadcast(newMessage, interfaceId);
 	}
 	
 	public void processInterest(String interfaceId, Interest interest) {
@@ -41,9 +51,13 @@ public class NetworkStack {
 		} else {
 			pit.insertInterest(interest.getName(), interfaceId, interest);
 			String outputInterface = fib.index(interest.getName());
-			
-			Interest newInterest = new Interest(interest.getName()); 
-			node.send(outputInterface, newInterest);
+			if (outputInterface != null) {
+				Interest newInterest = new Interest(interest.getName());
+				node.send(outputInterface, newInterest);
+			} else {
+				NACK nack = new NACK(interest.getName(), "Route to " + interest.getName() + " not found.");
+				node.send(interfaceId, nack);
+			}
 		} 
 	}
 	
@@ -58,15 +72,7 @@ public class NetworkStack {
 	}
 	
 	public void processVirtualInterest(String interfaceId, VirtualInterest vint) {
-		// TODO
-	}
-	
-	public ForwardingInformationBase getForwardingInformationBase() {
-		return fib;
-	}
-	
-	public PendingInterestTable getPendingInterestTable() {
-		return pit;
+		// TODO: when everything else is working
 	}
 	
 	public static NetworkStack buildDefaultNetworkStack(Node node) {
@@ -74,17 +80,5 @@ public class NetworkStack {
 		ForwardingInformationBase fib = new ForwardingInformationBase();
 		PendingInterestTable pit = new PendingInterestTable(); 
 		return new NetworkStack(node, cs, fib, pit);
-	}
-	
-	public static NetworkStack buildRouterStack(Router router) {
-		return buildDefaultNetworkStack(router);
-	}
-	
-	public static NetworkStack buildConsumerStack(Consumer consumer) {
-		return buildDefaultNetworkStack(consumer);
-	}
-	
-	public static NetworkStack buildProducerStack(Producer producer) {
-		return buildDefaultNetworkStack(producer);
 	}
 }

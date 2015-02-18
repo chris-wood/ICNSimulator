@@ -2,9 +2,12 @@ package ccn.entity;
 
 import java.util.List;
 
+import ccn.entity.stack.ConsumerStackFactory;
 import ccn.entity.stack.NetworkStack;
 import ccn.message.ContentObject;
 import ccn.message.Interest;
+import ccn.message.NACK;
+import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.Point;
 
@@ -15,7 +18,7 @@ public class Consumer extends Node {
 
 	public Consumer(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
-		stack = NetworkStack.buildConsumerStack(this);
+		stack = ConsumerStackFactory.buildDefault(this);
 	}
 
 	@Override
@@ -23,8 +26,10 @@ public class Consumer extends Node {
 		if (!sent) {
 			Interest interest = new Interest("lci:/some/thing");
 			System.out.println("Issuing interest " + interest);
+			
+			// TODO: replace broadcast with stack.sendInterest()
 			broadcast(interest);
-			sent = true;
+//			sent = true; // only issue a single interest for now..
 		}
 	}
 
@@ -42,6 +47,18 @@ public class Consumer extends Node {
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
 		System.out.println("Consumer " + identity + " received " + content + " at time " + time);
 		content.setProcessed();
+	}
+
+	@Override
+	protected void processNACKFromInterface(String interfaceId, NACK nack, long time) {
+		System.out.println("Consumer " + identity + " received " + nack + " at time " + time);
+		nack.setProcessed();
+	}
+
+	@Override
+	protected void processRIPMessageFromInterface(String interfaceId, RIPMessage message, long time) {
+		System.out.println("Consumer " + identity + " received " + message);
+		stack.processRIPMessage(interfaceId, message);
 	}
 
 }
