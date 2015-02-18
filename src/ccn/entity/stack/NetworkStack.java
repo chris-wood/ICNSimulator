@@ -64,6 +64,7 @@ public class NetworkStack {
 	public void processContentObject(String interfaceId, ContentObject content) {
 		content.setProcessed();
 		contentStore.insertContent(content.getName(), content);
+		pit.clearEntryAndGetEntries(content.getName());
 		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
 			ContentObject newContentObject = new ContentObject(content.getName(), content.getPayload());

@@ -50,7 +50,7 @@ public class Producer extends Node {
 		rng.nextBytes(payload);
 		
 		ContentObject content = new ContentObject(interest.getName(), payload);
-		System.out.println("Received interest " + interest + ", responding with content object " + content);
+		System.out.println("Producer " + identity + " received interest " + interest + ", responding with content object " + content);
 		interest.setProcessed();
 		send(interfaceId, content);
 	}

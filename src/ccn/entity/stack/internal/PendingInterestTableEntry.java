@@ -16,8 +16,10 @@ public class PendingInterestTableEntry {
 	}
 	
 	public void addInterestFromInterface(String interfaceId, Interest interest) {
-		interfaces.add(interfaceId);
-		messages.add(interest);
+		if (!interfaces.contains(interfaceId)) {
+			interfaces.add(interfaceId);
+			messages.add(interest);
+		}
 	}
 	
 	public List<String> getInterfaces() {

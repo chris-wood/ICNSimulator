@@ -1,5 +1,6 @@
 package ccn.entity.stack.internal;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,11 @@ public class PendingInterestTable {
 	public List<String> clearEntryAndGetEntries(String name) {
 		PendingInterestTableEntry entry = pit.get(name);
 		pit.remove(name);
-		return entry.getInterfaces();
+		if (entry == null) {
+			return Collections.<String>emptyList();
+		} else {
+			return entry.getInterfaces(); 
+		}
+		
 	}
-
 }
