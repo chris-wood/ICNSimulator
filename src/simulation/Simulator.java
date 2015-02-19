@@ -24,6 +24,8 @@ public class Simulator extends Thread {
 	public void run() {
 		try {
 			Topology topology = topologyParser.parse();
+			
+			// TODO: Component dispatcher needs to be wrapped to get rid of this dependency
 			Dispatcher dispatcher = new Dispatcher(config.time);
 			
 			List<Node> nodes = topology.getNodes();
@@ -41,6 +43,7 @@ public class Simulator extends Thread {
 	
 	public static void main(String[] args) {
 		try {
+			// TODO: need cmdline parser 
 			Configuration simultationConfig = Yaml.loadType(new File(args[0]), Configuration.class);
 			TopologyParser topologyParser = TopologyParser.getParserForFile(args[1]);
 			
