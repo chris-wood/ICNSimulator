@@ -1,4 +1,4 @@
-package util.json;
+package ccn.util.json;
 
 /*
 Copyright (c) 2006 JSON.org

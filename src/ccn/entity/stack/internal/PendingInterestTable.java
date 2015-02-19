@@ -19,11 +19,12 @@ public class PendingInterestTable {
 		return pit.containsKey(name);
 	}
 	
+	public void appendInterest(String name, String interfaceid, Interest interest) {
+		pit.get(name).addInterestFromInterface(interfaceid, interest);
+	}
+	
 	public void insertInterest(String name, String interfaceId, Interest interest) {
-		if (!isInterestPresent(name)) {
-			pit.put(name, new PendingInterestTableEntry());
-		}
-		pit.get(name).addInterestFromInterface(interfaceId, interest);
+		pit.put(name, new PendingInterestTableEntry());
 	}
 	
 	public List<String> clearEntryAndGetEntries(String name) {

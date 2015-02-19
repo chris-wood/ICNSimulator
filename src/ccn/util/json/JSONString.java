@@ -1,4 +1,4 @@
-package util.json;
+package ccn.util.json;
 
 /**
  * The <code>JSONString</code> interface allows a <code>toJSONString()</code>

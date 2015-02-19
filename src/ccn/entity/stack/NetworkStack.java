@@ -2,6 +2,7 @@ package ccn.entity.stack;
 
 import java.util.List;
 
+import sun.security.action.PutAllAction;
 import ccn.entity.Node;
 import ccn.entity.stack.internal.ContentStore;
 import ccn.entity.stack.internal.ForwardingInformationBase;
@@ -48,8 +49,10 @@ public class NetworkStack {
 		if (contentStore.hashContent(interest.getName())) {
 			ContentObject cachedMessage = contentStore.retrieveContentByName(interest.getName());
 			node.send(interfaceId, cachedMessage);
-		} else {
+		} else if (!pit.isInterestPresent(interest.getName())) {
 			pit.insertInterest(interest.getName(), interfaceId, interest);
+		} else {
+			pit.appendInterest(interest.getName(), interfaceId, interest);
 			String outputInterface = fib.index(interest.getName());
 			if (outputInterface != null) {
 				Interest newInterest = new Interest(interest.getName());
@@ -64,9 +67,9 @@ public class NetworkStack {
 	public void processContentObject(String interfaceId, ContentObject content) {
 		content.setProcessed();
 		contentStore.insertContent(content.getName(), content);
-		pit.clearEntryAndGetEntries(content.getName());
 		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
+			System.out.println(node.getIdentity() + " replying with content  " + content);
 			ContentObject newContentObject = new ContentObject(content.getName(), content.getPayload());
 			node.send(downstreamInterface, newContentObject);
 		}

@@ -25,11 +25,10 @@ public class Consumer extends Node {
 	protected void runComponent(long time) {
 		if (!sent) {
 			Interest interest = new Interest("lci:/some/thing");
-			System.out.println("Issuing interest " + interest);
+			System.out.println("Consumer issuing interest " + interest);
 			
 			// TODO: replace broadcast with stack.sendInterest()
 			broadcast(interest);
-//			sent = true; // only issue a single interest for now..
 		}
 	}
 
@@ -47,6 +46,7 @@ public class Consumer extends Node {
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
 		System.out.println("Consumer " + identity + " received " + content + " at time " + time);
 		content.setProcessed();
+		sent = true;
 	}
 
 	@Override

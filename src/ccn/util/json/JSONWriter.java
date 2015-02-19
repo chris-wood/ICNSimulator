@@ -1,4 +1,4 @@
-package util.json;
+package ccn.util.json;
 
 import java.io.IOException;
 import java.io.Writer;

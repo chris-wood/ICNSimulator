@@ -12,8 +12,8 @@ import ccn.entity.Consumer;
 import ccn.entity.Node;
 import ccn.entity.Producer;
 import ccn.entity.Router;
-import util.json.JSONArray;
-import util.json.JSONObject;
+import ccn.util.json.JSONArray;
+import ccn.util.json.JSONObject;
 import framework.Channel;
 
 public class TopologyParser {
