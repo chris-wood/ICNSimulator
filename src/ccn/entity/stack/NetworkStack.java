@@ -44,24 +44,38 @@ public class NetworkStack {
 		node.broadcast(newMessage, interfaceId);
 	}
 	
+	public boolean sendInterest(Interest interest) {
+		String outputInterface = fib.index(interest.getName());
+		if (outputInterface != null) {
+			Interest newInterest = new Interest(interest.getName());
+			node.send(outputInterface, newInterest);
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public void sendInterestWithNACK(String interfaceId, Interest interest) {
+		boolean success = sendInterest(interest);
+		if (!success) {
+			NACK nack = new NACK(interest.getName(), "Route to " + interest.getName() + " not found.");
+			node.send(interfaceId, nack);
+		}
+	}
+	
 	public void processInterest(String interfaceId, Interest interest) {
 		interest.setProcessed();
-		if (contentStore.hashContent(interest.getName())) {
+		if (contentStore.hasContent(interest.getName())) {
 			ContentObject cachedMessage = contentStore.retrieveContentByName(interest.getName());
 			node.send(interfaceId, cachedMessage);
-		} else if (!pit.isInterestPresent(interest.getName())) {
-			pit.insertInterest(interest.getName(), interfaceId, interest);
-		} else {
+		} else if (pit.isInterestPresent(interest.getName())) {
+			System.out.println("Appending interest " + interest + " to PIT entry");
 			pit.appendInterest(interest.getName(), interfaceId, interest);
-			String outputInterface = fib.index(interest.getName());
-			if (outputInterface != null) {
-				Interest newInterest = new Interest(interest.getName());
-				node.send(outputInterface, newInterest);
-			} else {
-				NACK nack = new NACK(interest.getName(), "Route to " + interest.getName() + " not found.");
-				node.send(interfaceId, nack);
-			}
-		} 
+		} else {
+			System.out.println("Inserting interest " + interest + " in PIT");
+			pit.insertInterest(interest.getName(), interfaceId, interest);
+			sendInterestWithNACK(interfaceId, interest);
+		}
 	}
 	
 	public void processContentObject(String interfaceId, ContentObject content) {

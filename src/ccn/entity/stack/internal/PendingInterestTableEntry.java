@@ -25,5 +25,9 @@ public class PendingInterestTableEntry {
 	public List<String> getInterfaces() {
 		return interfaces;
 	}
+	
+	public int getNumberOfEntries() {
+		return interfaces.size();
+	}
 
 }

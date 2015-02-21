@@ -26,9 +26,7 @@ public class Consumer extends Node {
 		if (!sent) {
 			Interest interest = new Interest("lci:/some/thing");
 			System.out.println("Consumer issuing interest " + interest);
-			
-			// TODO: replace broadcast with stack.sendInterest()
-			broadcast(interest);
+			stack.sendInterest(interest);
 		}
 	}
 

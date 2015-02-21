@@ -25,6 +25,7 @@ public class PendingInterestTable {
 	
 	public void insertInterest(String name, String interfaceId, Interest interest) {
 		pit.put(name, new PendingInterestTableEntry());
+		appendInterest(name, interfaceId, interest);
 	}
 	
 	public List<String> clearEntryAndGetEntries(String name) {
@@ -35,6 +36,14 @@ public class PendingInterestTable {
 		} else {
 			return entry.getInterfaces(); 
 		}
-		
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		for (String entry : pit.keySet()) {
+			builder.append(entry + ": " + pit.get(entry).getNumberOfEntries());
+		}
+		return builder.toString();
 	}
 }

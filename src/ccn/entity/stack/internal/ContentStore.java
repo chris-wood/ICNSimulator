@@ -25,8 +25,8 @@ public class ContentStore {
 		this.usageAttempts = new ArrayList<String>();
 	}
 	
-	public boolean hashContent(String name) {
-		return store.containsKey(store);
+	public boolean hasContent(String name) {
+		return store.containsKey(name);
 	}
 	
 	public void insertContent(String name, ContentObject contentObject) {
