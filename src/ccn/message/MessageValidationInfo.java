@@ -9,5 +9,9 @@ public class MessageValidationInfo {
 	public MessageValidationInfo(byte[] inputData) {
 		this.data = Arrays.copyOf(inputData, inputData.length);
 	}
+	
+	public byte[] getData() {
+		return data;
+	}
 
 }
