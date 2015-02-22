@@ -1,5 +1,5 @@
 package ccn.entity.stack.internal;
 
-public class LongestPrefixMatchForwardingStrategy implements ForwardingStrategy {
-
+public class LongestPrefixMatchForwardingStrategy extends ForwardingStrategy {
+	
 }

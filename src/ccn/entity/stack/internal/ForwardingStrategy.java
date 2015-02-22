@@ -1,5 +1,5 @@
 package ccn.entity.stack.internal;
 
-public interface ForwardingStrategy {
-	// TODO
+public abstract class ForwardingStrategy {
+	
 }

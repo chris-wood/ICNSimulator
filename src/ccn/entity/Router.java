@@ -18,11 +18,6 @@ public class Router extends Node {
 	public Router(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
 		stack = RouterStackFactory.buildDefault(this);
-		
-		// TODO: this will be replaced by the actual routing protocol
-//		for (String interfaceId : interfaces) {
-//			stack.getForwardingInformationBase().installRoute("lci:/", interfaceId); // pick any interface
-//		}
 	}
 
 	@Override

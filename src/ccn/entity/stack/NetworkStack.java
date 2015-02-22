@@ -55,6 +55,14 @@ public class NetworkStack {
 		}
 	}
 	
+	public void sendVirtualInterest(VirtualInterest vint) {
+		String outputInterface = fib.index(vint.getName());
+		if (outputInterface != null) {
+			VirtualInterest newInterest = new VirtualInterest(vint.getName());
+			node.send(outputInterface, newInterest);
+		} 
+	}
+	
 	public void sendInterestWithNACK(String interfaceId, Interest interest) {
 		boolean success = sendInterest(interest);
 		if (!success) {
@@ -68,6 +76,9 @@ public class NetworkStack {
 		if (contentStore.hasContent(interest.getName())) {
 			ContentObject cachedMessage = contentStore.retrieveContentByName(interest.getName());
 			node.send(interfaceId, cachedMessage);
+			
+			VirtualInterest virtualInterest = new VirtualInterest(interest.getName());
+			sendVirtualInterest(virtualInterest);
 		} else if (pit.isInterestPresent(interest.getName())) {
 			System.out.println("Appending interest " + interest + " to PIT entry");
 			pit.appendInterest(interest.getName(), interfaceId, interest);
@@ -90,7 +101,8 @@ public class NetworkStack {
 	}
 	
 	public void processVirtualInterest(String interfaceId, VirtualInterest vint) {
-		// TODO: when everything else is working
+		vint.setProcessed();
+		sendVirtualInterest(vint);
 	}
 	
 	public static NetworkStack buildDefaultNetworkStack(Node node) {

@@ -57,7 +57,8 @@ public class Producer extends Node {
 
 	@Override
 	protected void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time) {
-		// pass
+		System.out.println("Producer " + identity + " received vint " + interest);
+		interest.setProcessed();
 	}
 
 	@Override

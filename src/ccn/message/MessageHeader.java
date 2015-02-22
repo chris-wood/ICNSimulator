@@ -13,5 +13,9 @@ public class MessageHeader {
 	public String getName() {
 		return name;
 	}
+	
+	public int getHopCount() {
+		return hopCount;
+	}
 
 }

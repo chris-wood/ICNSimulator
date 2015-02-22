@@ -6,7 +6,6 @@ public class Message extends Event {
 
 	protected MessageHeader header;
 	protected MessagePayload payload;
-	protected MessageValidationInfo validationInfo;
 	
 	public Message(String name) {
 		this.header = new MessageHeader(name, Integer.MAX_VALUE);

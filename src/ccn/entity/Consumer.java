@@ -44,7 +44,6 @@ public class Consumer extends Node {
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
 		System.out.println("Consumer " + identity + " received " + content + " at time " + time);
 		content.setProcessed();
-		sent = true;
 	}
 
 	@Override
