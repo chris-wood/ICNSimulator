@@ -9,6 +9,8 @@ import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.Point;
+import ccn.util.LogLevel;
+import ccn.util.Logger;
 import framework.Channel;
 import framework.Component;
 import framework.Event;
@@ -17,6 +19,7 @@ public abstract class Node extends Component {
 	
 	protected Point location;
 	protected List<String> interfaces;
+	private static final Logger logger = Logger.getConsoleLogger(Node.class.getName());
 
 	public Node(String identity, Point location, List<String> interfaces) {
 		super(identity);
@@ -48,7 +51,7 @@ public abstract class Node extends Component {
 		} else if (event instanceof RIPMessage) {
 			processRIPMessageFromInterface(interfaceId, (RIPMessage) event, time);
 		} else {
-			System.err.println("Invalid message type received at Node " + identity + ": " + event);
+			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + event);
 		}
 	}
 }

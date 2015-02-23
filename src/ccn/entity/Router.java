@@ -10,10 +10,13 @@ import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.Point;
+import ccn.util.LogLevel;
+import ccn.util.Logger;
 
 public class Router extends Node {
 	
 	protected NetworkStack stack;
+	private static final Logger logger = Logger.getConsoleLogger(Router.class.getName());
 
 	public Router(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
@@ -26,31 +29,31 @@ public class Router extends Node {
 
 	@Override
 	protected void processInterestFromInterface(String interfaceId, Interest interest, long time) {
-		System.out.println("Router " + identity + " received " + interest);
+		logger.log(LogLevel.LogLevel_INFO, time, "Router " + identity + " received " + interest);
 		stack.processInterest(interfaceId, interest);
 	}
 
 	@Override
 	protected void processVirtualInterestFromInterface(String interfaceId, VirtualInterest vint, long time) {
-		System.out.println("Router " + identity + " received " + vint);
+		logger.log(LogLevel.LogLevel_INFO, time, "Router " + identity + " received " + vint);
 		stack.processVirtualInterest(interfaceId, vint);
 	}
 
 	@Override
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
-		System.out.println("Router " + identity + " received " + content);
+		logger.log(LogLevel.LogLevel_INFO, time, "Router " + identity + " received " + content);
 		stack.processContentObject(interfaceId, content);
 	}
 
 	@Override
 	protected void processNACKFromInterface(String interfaceId, NACK nack, long time) {
-		System.out.println("Router " + identity + " received " + nack);
+		logger.log(LogLevel.LogLevel_INFO, time, "Router " + identity + " received " + nack);
 		stack.processNACK(interfaceId, nack);
 	}
 
 	@Override
 	protected void processRIPMessageFromInterface(String interfaceId, RIPMessage message, long time) {
-		System.out.println("Router " + identity + " received " + message);
+		logger.log(LogLevel.LogLevel_INFO, time, "Router " + identity + " received " + message);
 		stack.processRIPMessage(interfaceId, message);
 	}
 }

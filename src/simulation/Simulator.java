@@ -25,8 +25,7 @@ public class Simulator extends Thread {
 		try {
 			Topology topology = topologyParser.parse();
 			
-			// TODO: Component dispatcher needs to be wrapped to get rid of this dependency
-			Dispatcher dispatcher = new Dispatcher(config.time);
+			SimulationDispatcher dispatcher = new SimulationDispatcher(config.time);
 			
 			List<Node> nodes = topology.getNodes();
 			for (Node node : nodes) {

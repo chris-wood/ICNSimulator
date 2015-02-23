@@ -12,12 +12,15 @@ import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.Point;
+import ccn.util.LogLevel;
+import ccn.util.Logger;
 
 public class Producer extends Node {
 	
 	protected NetworkStack stack;
 	protected List<String> prefixes;
 	protected boolean hasBroadcastedPrefixes;
+	private static final Logger logger = Logger.getConsoleLogger(Producer.class.getName());
 
 	public Producer(String identity, Point location, List<String> interfaces, List<String> routerPrefixes) {
 		super(identity, location, interfaces);
@@ -36,7 +39,7 @@ public class Producer extends Node {
 		} else {
 			for (String prefix : prefixes) {
 				RIPMessage message = new RIPMessage(prefix, prefix);
-				System.out.println("Broadcasting router RIPMessage " + message);
+				logger.log(LogLevel.LogLevel_INFO, time, "Broadcasting router RIPMessage " + message);
 				broadcast(message);
 			}
 			hasBroadcastedPrefixes = true;
@@ -50,14 +53,14 @@ public class Producer extends Node {
 		rng.nextBytes(payload);
 		
 		ContentObject content = new ContentObject(interest.getName(), payload);
-		System.out.println("Producer " + identity + " received interest " + interest + ", responding with content object " + content);
+		logger.log(LogLevel.LogLevel_INFO, time, "Producer " + identity + " received interest " + interest + ", responding with content object " + content);
 		interest.setProcessed();
 		send(interfaceId, content);
 	}
 
 	@Override
 	protected void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time) {
-		System.out.println("Producer " + identity + " received vint " + interest);
+		logger.log(LogLevel.LogLevel_INFO, time, "Producer " + identity + " received vint " + interest);
 		interest.setProcessed();
 	}
 

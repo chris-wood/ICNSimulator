@@ -2,8 +2,8 @@ package ccn.entity.stack;
 
 import java.util.List;
 
-import sun.security.action.PutAllAction;
 import ccn.entity.Node;
+import ccn.entity.Producer;
 import ccn.entity.stack.internal.ContentStore;
 import ccn.entity.stack.internal.ForwardingInformationBase;
 import ccn.entity.stack.internal.PendingInterestTable;
@@ -13,6 +13,8 @@ import ccn.message.Interest;
 import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
+import ccn.util.LogLevel;
+import ccn.util.Logger;
 
 public class NetworkStack {
 	
@@ -20,6 +22,7 @@ public class NetworkStack {
 	protected ForwardingInformationBase fib;
 	protected PendingInterestTable pit;
 	protected Node node;
+	private static final Logger logger = Logger.getConsoleLogger(NetworkStack.class.getName());
 	
 	private NetworkStack(Node node, ContentStore cs, ForwardingInformationBase fib, PendingInterestTable pit) {
 		this.node = node;
@@ -80,10 +83,8 @@ public class NetworkStack {
 			VirtualInterest virtualInterest = new VirtualInterest(interest.getName());
 			sendVirtualInterest(virtualInterest);
 		} else if (pit.isInterestPresent(interest.getName())) {
-			System.out.println("Appending interest " + interest + " to PIT entry");
 			pit.appendInterest(interest.getName(), interfaceId, interest);
 		} else {
-			System.out.println("Inserting interest " + interest + " in PIT");
 			pit.insertInterest(interest.getName(), interfaceId, interest);
 			sendInterestWithNACK(interfaceId, interest);
 		}
@@ -94,7 +95,6 @@ public class NetworkStack {
 		contentStore.insertContent(content.getName(), content);
 		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
-			System.out.println(node.getIdentity() + " replying with content  " + content);
 			ContentObject newContentObject = new ContentObject(content.getName(), content.getPayload());
 			node.send(downstreamInterface, newContentObject);
 		}
