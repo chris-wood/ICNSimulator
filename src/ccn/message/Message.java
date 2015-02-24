@@ -1,6 +1,6 @@
 package ccn.message;
 
-import dispatch.Event;
+import dispatch.event.Event;
 
 public class Message extends Event {
 
