@@ -11,9 +11,9 @@ import ccn.message.VirtualInterest;
 import ccn.network.Point;
 import ccn.util.LogLevel;
 import ccn.util.Logger;
-import framework.Channel;
-import framework.Component;
-import framework.Event;
+import dispatch.Channel;
+import dispatch.Component;
+import dispatch.Event;
 
 public abstract class Node extends Component {
 	
