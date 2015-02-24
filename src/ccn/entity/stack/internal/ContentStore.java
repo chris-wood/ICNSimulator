@@ -9,6 +9,7 @@ import ccn.message.ContentObject;
 
 public class ContentStore {
 	
+	private int capacity;
 	private CachePolicy policy;
 	private Map<String, ContentObject> store;
 	private List<String> usageAttempts;
@@ -20,6 +21,14 @@ public class ContentStore {
 	}
 	
 	public ContentStore(CachePolicy policy) {
+		this.capacity = Integer.MAX_VALUE;
+		this.policy = policy;
+		this.store = new HashMap<String, ContentObject>();
+		this.usageAttempts = new ArrayList<String>();
+	}
+	
+	public ContentStore(CachePolicy policy, int cacheCapacity) {
+		this.capacity = cacheCapacity;
 		this.policy = policy;
 		this.store = new HashMap<String, ContentObject>();
 		this.usageAttempts = new ArrayList<String>();

@@ -3,7 +3,6 @@ package ccn.entity.stack;
 import java.util.List;
 
 import ccn.entity.Node;
-import ccn.entity.Producer;
 import ccn.entity.stack.internal.ContentStore;
 import ccn.entity.stack.internal.ForwardingInformationBase;
 import ccn.entity.stack.internal.PendingInterestTable;
@@ -13,7 +12,6 @@ import ccn.message.Interest;
 import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
-import ccn.util.LogLevel;
 import ccn.util.Logger;
 
 public class NetworkStack {
@@ -48,22 +46,24 @@ public class NetworkStack {
 	}
 	
 	public boolean sendInterest(Interest interest) {
-		String outputInterface = fib.index(interest.getName());
-		if (outputInterface != null) {
-			Interest newInterest = new Interest(interest.getName());
-			node.send(outputInterface, newInterest);
-			return true;
-		} else {
+		List<String> outputInterfaces = fib.getRoutes(interest.getName());
+		if (outputInterfaces.isEmpty()) {
 			return false;
+		} else {
+			for (String outputInterface : outputInterfaces) {
+				Interest newInterest = new Interest(interest.getName());
+				node.send(outputInterface, newInterest);
+			}
+			return true;
 		}
 	}
 	
 	public void sendVirtualInterest(VirtualInterest vint) {
-		String outputInterface = fib.index(vint.getName());
-		if (outputInterface != null) {
+		List<String> outputInterfaces = fib.getRoutes(vint.getName());
+		for (String outputInterface : outputInterfaces) {
 			VirtualInterest newInterest = new VirtualInterest(vint.getName());
 			node.send(outputInterface, newInterest);
-		} 
+		}
 	}
 	
 	public void sendInterestWithNACK(String interfaceId, Interest interest) {

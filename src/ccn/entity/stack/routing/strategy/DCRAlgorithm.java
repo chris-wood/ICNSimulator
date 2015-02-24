@@ -1,4 +1,6 @@
-package ccn.entity.stack.routing;
+package ccn.entity.stack.routing.strategy;
+
+import ccn.entity.stack.routing.RoutingAlgorithm;
 
 public class DCRAlgorithm extends RoutingAlgorithm {
 	

@@ -1,32 +1,36 @@
 package ccn.entity.stack.internal;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import ccn.entity.stack.internal.strategy.ForwardingInformationBaseStrategy;
+import ccn.entity.stack.internal.strategy.LPMForwardingInformationBaseStrategy;
 
 public class ForwardingInformationBase {
 	
 	protected Map<String, String> routingTable;
+	protected ForwardingInformationBaseStrategy strategy;
 	
 	public ForwardingInformationBase() {
 		this.routingTable = new HashMap<String, String>();
+		this.strategy = new LPMForwardingInformationBaseStrategy(this);
+	}
+	
+	public Map<String, String> getRoutingTable() {
+		return routingTable;
 	}
 	
 	public boolean routePresent(String name) {
-		return routingTable.containsKey(name);
+		return strategy.routePresent(name);
 	}
 	
-	public String index(String name) {
-		String matchingPrefix = "";
-		for (String prefix : routingTable.keySet()) {
-			if (name.startsWith(prefix) && prefix.length() > matchingPrefix.length()) {
-				matchingPrefix = prefix;
-			}
-		}
-		return routingTable.get(matchingPrefix);
+	public List<String> getRoutes(String name) {
+		return strategy.getRoutes(name);
 	}
 	
 	public void installRoute(String prefix, String interfaceId) {
-		routingTable.put(prefix, interfaceId);
+		strategy.installRoute(prefix, interfaceId);
 	}
 
 }
