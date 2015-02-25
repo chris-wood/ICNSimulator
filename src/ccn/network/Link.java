@@ -1,8 +1,6 @@
 package ccn.network;
 
-import ccn.message.Message;
 import dispatch.channel.Channel;
-import dispatch.event.Event;
 
 public class Link extends Channel {
 	
