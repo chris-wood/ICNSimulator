@@ -35,11 +35,11 @@
     "channels" : [
     	{
     		"channel_id" : "link1",
-    		"data_rate": "100bps",
+    		"data_rate": "100",
     	},
     	{
     		"channel_id" : "link2",
-    		"data_rate": "100bps",
+    		"data_rate": "100",
     	}
     ],
     "connections": [

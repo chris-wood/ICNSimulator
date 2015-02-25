@@ -91,11 +91,9 @@ public class TopologyParser {
 		for (int i = 0; i < channelContainer.length(); i++) {
 			JSONObject channelObject = channelContainer.getJSONObject(i);
 			String channelId = channelObject.getString("channel_id");
-			String channelDataRate = channelObject.getString("data_rate");
+			int channelDataRate = channelObject.getInt("data_rate");
 			
-			// TODO: do something with the data rate later...
-			
-			Link link = new Link(channelId);
+			Link link = new Link(channelId, channelDataRate);
 			topology.addLink(link);
 			linkMap.put(channelId, link);
 		}

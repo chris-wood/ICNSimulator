@@ -28,4 +28,9 @@ public class Message extends Event {
 		return validationInfo.getData();
 	}
 	
+	public int getSize() {
+		return 1;
+//		return header.getSize() + payload.getSize() + validationInfo.getSize();
+	}
+	
 }
