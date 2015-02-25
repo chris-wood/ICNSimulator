@@ -12,17 +12,5 @@ public class Link extends Channel {
 		super(identity);
 		bitsPerEpoch = linkBitsPerEpoch;
 	}
-	
-	@Override
-	public void write(String source, Event event) {
-		if (event instanceof Message) {
-			Message message = (Message) event;
-			int sizeInBits = message.getSizeInBits();
-			int numberOfEpochs = ((int) Math.ceil(sizeInBits / bitsPerEpoch));
-			write(source, event, numberOfEpochs);
-		} else {
-			super.write(source, event);
-		}
-	}
 
 }

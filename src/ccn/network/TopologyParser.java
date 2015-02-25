@@ -108,9 +108,9 @@ public class TopologyParser {
 			String channelId = containerObject.getString("channel_id");
 			
 			Node source = nodeMap.get(sourceId);
-			ChannelInterface sourceChannel = source.getChannelInterfaceByName(sourceInterface);
+			LinkInterface sourceChannel = (LinkInterface) source.getChannelInterfaceByName(sourceInterface);
 			Node dest = nodeMap.get(destId);
-			ChannelInterface destChannel = dest.getChannelInterfaceByName(destInterface);
+			LinkInterface destChannel = (LinkInterface) dest.getChannelInterfaceByName(destInterface);
 			Link link = linkMap.get(channelId);
 			
 			// tie them up

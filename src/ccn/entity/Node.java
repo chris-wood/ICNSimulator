@@ -8,11 +8,10 @@ import ccn.message.Interest;
 import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
+import ccn.network.LinkInterface;
 import ccn.network.Point;
 import ccn.util.LogLevel;
 import ccn.util.Logger;
-import dispatch.channel.Channel;
-import dispatch.channel.ChannelInterface;
 import dispatch.component.Component;
 import dispatch.event.Event;
 
@@ -29,8 +28,8 @@ public abstract class Node extends Component {
 		this.interfaces.addAll(interfaces);
 		
 		for (String interfaceId : interfaces) {
-			ChannelInterface channelInterface = new ChannelInterface(interfaceId);
-			this.addChannelInterface(interfaceId, channelInterface);
+			LinkInterface linkInterface = new LinkInterface(interfaceId, Integer.MAX_VALUE); // max write throughput, for now
+			this.addChannelInterface(interfaceId, linkInterface);
 		}
 	}
 	
