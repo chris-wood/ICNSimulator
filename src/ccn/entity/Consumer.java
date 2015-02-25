@@ -42,7 +42,7 @@ public class Consumer extends Node {
 
 	@Override
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
-		logger.log(LogLevel.LogLevel_INFO, time, "Consumer " + identity + " received " + content + " at time " + time);
+		logger.log(LogLevel.LogLevel_INFO, time, "Consumer " + identity + " received " + content);
 		content.setProcessed();
 	}
 
