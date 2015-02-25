@@ -32,7 +32,7 @@ public class Simulator extends Thread {
 				node.setDispatcher(dispatcher);
 			}
 			for (Link link : topology.getLinks()) {
-				dispatcher.addChannel(link);
+				dispatcher.addActor(link);
 			}
 			
 			System.err.println("Starting dispatcher");
