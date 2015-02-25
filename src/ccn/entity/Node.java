@@ -12,6 +12,7 @@ import ccn.network.Point;
 import ccn.util.LogLevel;
 import ccn.util.Logger;
 import dispatch.channel.Channel;
+import dispatch.channel.ChannelInterface;
 import dispatch.component.Component;
 import dispatch.event.Event;
 
@@ -26,9 +27,10 @@ public abstract class Node extends Component {
 		this.location = location;
 		this.interfaces = new ArrayList<String>();
 		this.interfaces.addAll(interfaces);
+		
 		for (String interfaceId : interfaces) {
-			Channel channel = new Channel(interfaceId);
-			this.addChannelInterface(channel.getIdentity(), channel);
+			ChannelInterface channelInterface = new ChannelInterface(interfaceId);
+			this.addChannelInterface(interfaceId, channelInterface);
 		}
 	}
 	

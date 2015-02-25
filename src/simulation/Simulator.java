@@ -6,6 +6,7 @@ import java.util.List;
 import org.ho.yaml.Yaml;
 
 import ccn.entity.Node;
+import ccn.network.Link;
 import ccn.network.Topology;
 import ccn.network.TopologyParser;
 import dispatch.Dispatcher;
@@ -27,9 +28,11 @@ public class Simulator extends Thread {
 			
 			SimulationDispatcher dispatcher = new SimulationDispatcher(config.time);
 			
-			List<Node> nodes = topology.getNodes();
-			for (Node node : nodes) {
+			for (Node node : topology.getNodes()) {
 				node.setDispatcher(dispatcher);
+			}
+			for (Link link : topology.getLinks()) {
+				dispatcher.addChannel(link);
 			}
 			
 			System.err.println("Starting dispatcher");

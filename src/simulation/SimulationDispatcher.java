@@ -9,8 +9,13 @@ public class SimulationDispatcher extends Dispatcher {
 	}
 	
 	@Override
-	public void beginEpoch() {
+	public void beginEpoch(long time) {
 		System.out.println();
+	}
+	
+	@Override
+	public void endEpoch(long time) {
+		// pass
 	}
 
 }

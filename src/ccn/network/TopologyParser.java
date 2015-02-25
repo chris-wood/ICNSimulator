@@ -15,6 +15,7 @@ import ccn.entity.Router;
 import ccn.util.json.JSONArray;
 import ccn.util.json.JSONObject;
 import dispatch.channel.Channel;
+import dispatch.channel.ChannelInterface;
 
 public class TopologyParser {
 	
@@ -84,6 +85,20 @@ public class TopologyParser {
 			topology.addNode(node);
 			nodeMap.put(nodeId, node);
 		}
+
+		JSONArray channelContainer = root.getJSONArray("channels");
+		Map<String, Link> linkMap = new HashMap<String, Link>();
+		for (int i = 0; i < channelContainer.length(); i++) {
+			JSONObject channelObject = channelContainer.getJSONObject(i);
+			String channelId = channelObject.getString("channel_id");
+			String channelDataRate = channelObject.getString("data_rate");
+			
+			// TODO: do something with the data rate later...
+			
+			Link link = new Link(channelId);
+			topology.addLink(link);
+			linkMap.put(channelId, link);
+		}
 		
 		JSONArray connectionContainer = root.getJSONArray("connections");
 		for (int i = 0; i < connectionContainer.length(); i++) {
@@ -92,14 +107,20 @@ public class TopologyParser {
 			String sourceInterface = containerObject.getString("source_interface");
 			String destId = containerObject.getString("destination_id");
 			String destInterface = containerObject.getString("destination_interface");
+			String channelId = containerObject.getString("channel_id");
 			
 			Node source = nodeMap.get(sourceId);
-			Channel sourceChannel = source.getChannelByName(sourceInterface);
+			ChannelInterface sourceChannel = source.getChannelInterfaceByName(sourceInterface);
 			Node dest = nodeMap.get(destId);
-			Channel destChannel = dest.getChannelByName(destInterface);
+			ChannelInterface destChannel = dest.getChannelInterfaceByName(destInterface);
+			Link link = linkMap.get(channelId);
 			
 			// tie them up
-			sourceChannel.connect(destChannel);
+//			sourceChannel.connect(destChannel);
+			sourceChannel.setOutputChannel(link);
+			sourceChannel.setInputChannel(link);
+			destChannel.setInputChannel(link);
+			destChannel.setOutputChannel(link);
 		}
 		
 		return topology;

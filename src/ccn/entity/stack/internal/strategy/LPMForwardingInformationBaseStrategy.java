@@ -1,6 +1,7 @@
 package ccn.entity.stack.internal.strategy;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ccn.entity.stack.internal.ForwardingInformationBase;
@@ -18,14 +19,20 @@ public class LPMForwardingInformationBaseStrategy extends ForwardingInformationB
 	
 	public List<String> getRoutes(String name) {
 		String matchingPrefix = "";
+		boolean foundRoute = false;
 		for (String prefix : fib.getRoutingTable().keySet()) {
 			if (name.startsWith(prefix) && prefix.length() > matchingPrefix.length()) {
 				matchingPrefix = prefix;
+				foundRoute = true;
 			}
 		}
-		List<String> singleton = new ArrayList<String>();
-		singleton.add(fib.getRoutingTable().get(matchingPrefix));
-		return singleton;
+		if (foundRoute) {
+			List<String> singleton = new ArrayList<String>();
+			singleton.add(fib.getRoutingTable().get(matchingPrefix));
+			return singleton;
+		} else {
+			return Collections.emptyList();
+		}
 	}
 	
 	public void installRoute(String prefix, String interfaceId) {
