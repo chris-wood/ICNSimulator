@@ -97,6 +97,9 @@ def main(argv):
 	# c1 = Consumer("consumer1", 0, point, [interface])
 	# print c1.toJSON()
 
+	# http://networkx.lanl.gov/reference/algorithms.operators.html
+	# https://networkx.github.io/documentation/latest/reference/generators.html
+
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
 	G = nx.strong_product(G1, G2)
