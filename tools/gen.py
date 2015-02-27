@@ -71,13 +71,15 @@ class Router(Node):
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Producer(Node):
-	def __init__(self, id, index, point, interfaces):
+	def __init__(self, id, index, point, interfaces, prefixes):
 		super(Producer, self).__init__(identifier, index, point, interfaces)
+		self.prefixes = prefixes
 
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
-		return "{ %s }" % ",".join([parentJSON, nodeType])
+		prefixes = "\"prefixes\" : \"%s\"" % ",".join(self.prefixes)
+		return "{ %s }" % ",".join([parentJSON, nodeType, prefixes])
 
 def createChannels():
 	return None
