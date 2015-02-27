@@ -9,6 +9,43 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.backends.backend_pdf import PdfPages
 
+class Network:
+	def __init__(self):
+		self.connections = []
+		self.channels = []
+		self.nodes = []
+
+	def addNode(self, node):
+		self.nodes.append(node)
+
+	def addConnection(self, conn):
+		self.connections.append(conn)
+
+	def addChannel(self, channel):
+		self.channels.append(channel)
+
+	def createChannels(self, graph):
+		return None
+
+	def createNodes(graph, consumerIndices, producerIndices, routerIndices):
+		for index in consumerIndices:
+			identity = "consumer-" + str(index)
+			point = Point(0,0)
+			index, point, interfaces
+		for index in producerIndices:
+			return None
+		for index in routerIndices:
+			return None
+
+	def createConnections(self, graph):
+		return None
+
+	def toJSON(self):
+		nodes = "\"nodes\" : [ %s ]" % ",".join(map(lambda node : node.toJSON(), self.nodes))
+		channels = "\"channels\" : [ %s ]" % ",".join(map(lambda channel : channel.toJSON(), self.channels))
+		connections = "\"connections\" : [ %s ]" % ",".join(map(lambda connection : connection.toJSON(), self.connections))
+		return "{ %s }" % ",".join([nodes, channels, connections])
+
 class Channel:
 	def __init__(self, identifier, dataRate):
 		self.id = identifier
@@ -81,13 +118,12 @@ class Producer(Node):
 		prefixes = "\"prefixes\" : \"%s\"" % ",".join(self.prefixes)
 		return "{ %s }" % ",".join([parentJSON, nodeType, prefixes])
 
-def createChannels():
-	return None
+def buildNetwork(graph, consumerNodes, producerNodes, routerNodes):
+	network = Network()
+	network.createNodes(consumerNodes, producerNodes, routerIndices)
 
-def createNodes(graph, consumerIndices, producerIndices, routerIndices):
-	return None
+	# TODO
 
-def createConnections(graph):
 	return None
 
 def partitionNodesInGraph(graph, center):
@@ -158,6 +194,8 @@ def main(argv):
 	print intersect(producerNodes, consumerNodes)
 	print intersect(producerNodes, routerNodes)
 	print intersect(consumerNodes, routerNodes)
+
+	# TODO: create the network, and then generate the JSON configuration
 
 	# nx.draw(G)
 	# plt.show(G)
