@@ -90,6 +90,35 @@ def createNodes(graph, consumerIndices, producerIndices, routerIndices):
 def createConnections(graph):
 	return None
 
+def partitionNodesInGraph(graph, center):
+	queue = []
+	visited = {}
+
+	height = 0
+	queue.append((center, height))
+
+	while (len(queue) > 0):
+		(node, currentLevel) = queue.pop(0)
+		if (not (node in visited)):
+			visited[node] = currentLevel
+			for neighbor in graph.neighbors(node):
+				queue.append((neighbor, currentLevel + 1))
+			if (height == currentLevel):
+				height = height + 1
+
+	leaves = []
+	nonleaves = []
+	for node in visited:
+		if (visited[node] == height - 1):
+			leaves.append(node)
+		elif node != center:
+			nonleaves.append(node)
+
+	return leaves, nonleaves, center
+
+def intersect(a, b):
+	return list(set(a) & set(b))
+
 def main(argv):
 	G1 = nx.balanced_tree(2, 2)
 	G2 = nx.balanced_tree(2, 2)
@@ -105,14 +134,30 @@ def main(argv):
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
 	G = nx.strong_product(G1, G2)
-	print G2.nodes()
-	print G2.edges()
-	print nx.center(G2)
+	# G = G1
+	print nx.center(G)
 
+	consumerNodes = []
+	routerNodes = []
+	producerNodes = []
 
-	# TODO: BFS from each vertex in the center to the edges, those become the consumers
-	# everythinng in between is a router
-	# create them as such...
+	centerNodes = nx.center(G)
+	for centerIndex in range(len(centerNodes)):
+		centerNode = centerNodes[centerIndex]
+		leaves, nonleaves, center = partitionNodesInGraph(G, centerNode)
+		
+		consumerNodes.extend(leaves)
+		routerNodes.extend(nonleaves)
+		producerNodes.extend([centerNode])
+
+	print "producers = " + str(producerNodes)
+	print "consumers = " + str(consumerNodes)
+	print "routers = " + str(routerNodes)
+
+	# intersection -- TODO: fix if needed
+	print intersect(producerNodes, consumerNodes)
+	print intersect(producerNodes, routerNodes)
+	print intersect(consumerNodes, routerNodes)
 
 	# nx.draw(G)
 	# plt.show(G)
