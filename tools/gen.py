@@ -14,29 +14,29 @@ class Channel:
 		self.id = identifier
 		self.dataRate = dataRate
 
-	def toJSON():
-		channelId = "\"channel_id\" \"%s\"" % (self.id)	
-		dataRate = "\"data_rate\" \"%s\"" % (self.dataRate)	
+	def toJSON(self):
+		channelId = "\"channel_id\" \"%s\"" % self.id
+		dataRate = "\"data_rate\" \"%s\"" % self.dataRate
 		return "{ %s, %s }" % (channelId, dataRate)	
 
 class Interface:
 	def __init__(self, identifier):
 		self.id = identifier
 
-	def toJSON():
-		return "{ \"interface_id\" \"%s\" }" % (self.id)
+	def toJSON(self):
+		return "{ \"interface_id\" \"%s\" }" % self.id
 
-class Location:
+class Point:
 	def __init__(self, xCoord, yCoord):
 		self.xCoord = xCoord
 		self.yCoord = yCoord
 
-	def toJSON():
-		xCoord = "\"x-coord\" \"%s\"" % (self.xCoord)	
-		yCoord = "\"y-coord\" \"%s\"" % (self.yCoord)	
+	def toJSON(self):
+		xCoord = "\"x-coord\" \"%s\"" % self.xCoord	
+		yCoord = "\"y-coord\" \"%s\"" % self.yCoord
 		return "{ %s, %s }" % (xCoord, yCoord)	
 
-class Node:
+class Node(object):
 	def __init__(self, identifier, index, point, interfaces):
 		self.id = identifier
 		self.index = index
@@ -46,33 +46,38 @@ class Node:
 	def getCommonJSON(self):
 		nodeId = "\"node_id\" : \"%s\"" % self.id
 		nodePoint = self.point.toJSON()
-		interfaces =
+		nodeInterfaces = "[ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaces))
+		return (nodeId, nodePoint, nodeInterfaces)
 
 	def toJSON(self):
 		return ""
 
 class Consumer(Node):
 	def __init__(self, identifier, index, point, interfaces):
-		super(identifier, index, point, interfaces)
+		super(Consumer, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		nodeId = "\"node_id\" : \"%s\"" % self.id
-		nodeIndex = 
-		return "{  }"
+		parentJSON = self.getCommonJSON()
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Router(Node):
 	def __init__(self, identifier, index, point, interfaces):
-		super(identifier, index, point, interfaces)
+		super(Router, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		return ""
+		parentJSON = self.getCommonJSON()
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Producer(Node):
 	def __init__(self, id, index, point, interfaces):
-		super(identifier, index, point, interfaces)
+		super(Producer, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		return "{ }"
+		parentJSON = self.getCommonJSON()
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 def createChannels():
 	return None
@@ -87,12 +92,17 @@ def main(argv):
 	G1 = nx.balanced_tree(2, 2)
 	G2 = nx.balanced_tree(2, 2)
 
+	point = Point(0, 0)
+	interface = Interface("interface1")
+	c1 = Consumer("consumer1", 0, point, [interface])
+	print c1.toJSON()
+
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
-	G = nx.strong_product(G1, G2)
+	# G = nx.strong_product(G1, G2)
 
-	nx.draw(G)
-	plt.show(G)
+	# nx.draw(G)
+	# plt.show(G)
 
 if __name__ == "__main__":
 	main(sys.argv)
