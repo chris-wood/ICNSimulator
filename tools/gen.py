@@ -15,8 +15,8 @@ class Channel:
 		self.dataRate = dataRate
 
 	def toJSON(self):
-		channelId = "\"channel_id\" \"%s\"" % self.id
-		dataRate = "\"data_rate\" \"%s\"" % self.dataRate
+		channelId = "\"channel_id\" : \"%s\"" % self.id
+		dataRate = "\"data_rate\" : \"%s\"" % self.dataRate
 		return "{ %s, %s }" % (channelId, dataRate)	
 
 class Interface:
@@ -24,7 +24,7 @@ class Interface:
 		self.id = identifier
 
 	def toJSON(self):
-		return "{ \"interface_id\" \"%s\" }" % self.id
+		return "{ \"interface_id\" : \"%s\" }" % self.id
 
 class Point:
 	def __init__(self, xCoord, yCoord):
@@ -32,8 +32,8 @@ class Point:
 		self.yCoord = yCoord
 
 	def toJSON(self):
-		xCoord = "\"x-coord\" \"%s\"" % self.xCoord	
-		yCoord = "\"y-coord\" \"%s\"" % self.yCoord
+		xCoord = "\"x-coord\" : \"%s\"" % self.xCoord	
+		yCoord = "\"y-coord\" : \"%s\"" % self.yCoord
 		return "{ %s, %s }" % (xCoord, yCoord)	
 
 class Node(object):
@@ -45,8 +45,8 @@ class Node(object):
 
 	def getCommonJSON(self):
 		nodeId = "\"node_id\" : \"%s\"" % self.id
-		nodePoint = self.point.toJSON()
-		nodeInterfaces = "[ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaces))
+		nodePoint = "\"point\" : %s " % self.point.toJSON()
+		nodeInterfaces = "\"interfaces\" : [ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaces))
 		return (nodeId, nodePoint, nodeInterfaces)
 
 	def toJSON(self):
@@ -57,7 +57,7 @@ class Consumer(Node):
 		super(Consumer, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		parentJSON = self.getCommonJSON()
+		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
@@ -66,7 +66,7 @@ class Router(Node):
 		super(Router, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		parentJSON = self.getCommonJSON()
+		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
@@ -75,7 +75,7 @@ class Producer(Node):
 		super(Producer, self).__init__(identifier, index, point, interfaces)
 
 	def toJSON(self):
-		parentJSON = self.getCommonJSON()
+		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
@@ -92,14 +92,16 @@ def main(argv):
 	G1 = nx.balanced_tree(2, 2)
 	G2 = nx.balanced_tree(2, 2)
 
-	point = Point(0, 0)
-	interface = Interface("interface1")
-	c1 = Consumer("consumer1", 0, point, [interface])
-	print c1.toJSON()
+	# point = Point(0, 0)
+	# interface = Interface("interface1")
+	# c1 = Consumer("consumer1", 0, point, [interface])
+	# print c1.toJSON()
 
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
-	# G = nx.strong_product(G1, G2)
+	G = nx.strong_product(G1, G2)
+
+	
 
 	# nx.draw(G)
 	# plt.show(G)
