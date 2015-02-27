@@ -31,7 +31,7 @@ class Network:
 		for index in consumerIndices:
 			identity = "consumer-" + str(index)
 			point = Point(0,0)
-			index, point, interfaces
+			# index, point, interfaces
 		for index in producerIndices:
 			return None
 		for index in routerIndices:
@@ -190,7 +190,7 @@ def main(argv):
 	print "consumers = " + str(consumerNodes)
 	print "routers = " + str(routerNodes)
 
-	# intersection -- TODO: fix if needed
+	# intersection -- TODO: fix if needed, i.e., if they're not all empty.
 	print intersect(producerNodes, consumerNodes)
 	print intersect(producerNodes, routerNodes)
 	print intersect(consumerNodes, routerNodes)
