@@ -100,8 +100,14 @@ def main(argv):
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
 	G = nx.strong_product(G1, G2)
+	print G2.nodes()
+	print G2.edges()
+	print nx.center(G2)
 
-	
+
+	# TODO: BFS from each vertex in the center to the edges, those become the consumers
+	# everythinng in between is a router
+	# create them as such...
 
 	# nx.draw(G)
 	# plt.show(G)
