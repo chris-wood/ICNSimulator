@@ -7,6 +7,7 @@ import random
 import math
 import matplotlib.pyplot as plt
 import networkx as nx
+import argparse
 from matplotlib.backends.backend_pdf import PdfPages
 
 def createChannelName(source, dest):
@@ -234,7 +235,7 @@ def createGraph():
 	G.add_edge(3,4)
 	return G
 
-def main(argv):
+def main(args):
 	G = createGraph()
 	consumerNodes = []
 	routerNodes = []
@@ -261,9 +262,12 @@ def main(argv):
 	network = buildNetwork(G, consumerNodes, producerNodes, routerNodes)
 	print >> sys.stdout, network.toJSON()
 
-	# if argv.plot:
-	# 	nx.draw(G)
-	# 	plt.show(G)
+	if len(args.plot) > 0:
+		nx.draw(G)
+		plt.savefig(args.plot)
 
 if __name__ == "__main__":
-	main(sys.argv)
+	parser = argparse.ArgumentParser(prog='gen', formatter_class=argparse.RawDescriptionHelpFormatter, description="Generator for CCN network topologies")
+	parser.add_argument('-p', '--plot', default="", action="store", help="Plot the resulting network to the specified file")
+	args = parser.parse_args()
+	main(args)
