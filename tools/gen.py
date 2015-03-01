@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from matplotlib.backends.backend_pdf import PdfPages
 
+def createChannelName(source, dest):
+	return "channel:" + str(source) + "-" + str(dest)
+
 class Network:
 	def __init__(self):
 		self.connections = []
@@ -26,7 +29,7 @@ class Network:
 
 	def createChannels(self, graph, dataRateDistribution = [100]):
 		for (u, v) in graph.edges():
-			identifier = "channel:" + str(u) + "-" + str(v)
+			identifier = createChannelName(u, v)
 			dataRate = random.choice(dataRateDistribution)
 			channel = Channel(identifier, dataRate)
 			self.channels.append(channel)
@@ -51,8 +54,8 @@ class Network:
 			identity = "producer:" + str(index)
 			point = Point(0,0)
 			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
-			producer = Producer(identity, index, point, interfaces, "lci:/test")
-			self.nodes[index] = consumer
+			producer = Producer(identity, index, point, interfaces, ["lci:/test"])
+			self.nodes[index] = producer
 
 		for index in routerIndices:
 			identity = "router:" + str(index)
@@ -68,9 +71,11 @@ class Network:
 			sourceInterface = source.interfaceMap[v]
 			destination = self.nodes[v]
 			destinationInterface = destination.interfaceMap[u]
-			identity = "connection:" + str(linkNumber)
+
+			identity = createChannelName(u, v)
 			connection = Connection(identity, source.id, sourceInterface, destination.id, destinationInterface)
 			self.connections.append(connection)
+
 			linkNumber = linkNumber + 1
 
 	def toJSON(self):
@@ -95,6 +100,9 @@ class Connection:
 		channel = "\"channel_id\" : \"%s\"" % self.identifier
 		return "{ %s, %s, %s, %s, %s }" % (sourceNode, sourceInterface, destNode, destInterface, channel)
 
+	def __str__(self):
+		return str(self.identifier)
+
 class Channel:
 	def __init__(self, identifier, dataRate):
 		self.id = identifier
@@ -105,12 +113,18 @@ class Channel:
 		dataRate = "\"data_rate\" : \"%s\"" % self.dataRate
 		return "{ %s, %s }" % (channelId, dataRate)	
 
+	def __str__(self):
+		return str(self.id)
+
 class Interface:
 	def __init__(self, identifier):
 		self.id = identifier
 
 	def toJSON(self):
 		return "{ \"interface_id\" : \"%s\" }" % self.id
+
+	def __str__(self):
+		return str(self.id)
 
 class Point:
 	def __init__(self, xCoord, yCoord):
@@ -138,6 +152,9 @@ class Node(object):
 	def toJSON(self):
 		return ""
 
+	def __str__(self):
+		return str(self.id)
+
 class Consumer(Node):
 	def __init__(self, identifier, index, point, interfaceMap):
 		super(Consumer, self).__init__(identifier, index, point, interfaceMap)
@@ -164,7 +181,7 @@ class Producer(Node):
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
-		prefixes = "\"prefixes\" : \"%s\"" % ",".join(self.prefixes)
+		prefixes = "\"prefixes\" : [ %s ]" % ",".join(map(lambda prefix : "\"" + prefix + "\"", self.prefixes))
 		return "{ %s }" % ",".join([parentJSON, nodeType, prefixes])
 
 def buildNetwork(graph, consumerNodes, producerNodes, routerNodes):
@@ -260,7 +277,8 @@ def main(argv):
 	# print intersect(producerNodes, routerNodes)
 	# print intersect(consumerNodes, routerNodes)
 
-	buildNetwork(G, consumerNodes, producerNodes, routerNodes)
+	network = buildNetwork(G, consumerNodes, producerNodes, routerNodes)
+	print network.toJSON()
 
 	# nx.draw(G)
 	# plt.show(G)
