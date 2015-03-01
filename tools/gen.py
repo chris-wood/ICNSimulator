@@ -13,7 +13,7 @@ class Network:
 	def __init__(self):
 		self.connections = []
 		self.channels = []
-		self.nodes = []
+		self.nodes = {}
 
 	def addNode(self, node):
 		self.nodes.append(node)
@@ -24,27 +24,76 @@ class Network:
 	def addChannel(self, channel):
 		self.channels.append(channel)
 
-	def createChannels(self, graph):
-		return None
+	def createChannels(self, graph, dataRateDistribution = [100]):
+		for (u, v) in graph.edges():
+			identifier = "channel:" + str(u) + "-" + str(v)
+			dataRate = random.choice(dataRateDistribution)
+			channel = Channel(identifier, dataRate)
+			self.channels.append(channel)
 
-	def createNodes(graph, consumerIndices, producerIndices, routerIndices):
+	def createInterfaceMapForNode(self, node, neighbors):
+		interfaceMap = {}
+		for neighbor in neighbors:
+			identifier = "interface:" + str(node) + "#" + str(neighbor)
+			interfaceMap[neighbor] = Interface(identifier)
+		return interfaceMap
+
+	# TODO: refactor this code, pull out common node creation logic
+	def createNodes(self, graph, consumerIndices, producerIndices, routerIndices):
 		for index in consumerIndices:
-			identity = "consumer-" + str(index)
+			identity = "consumer:" + str(index)
 			point = Point(0,0)
-			# index, point, interfaces
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			consumer = Consumer(identity, index, point, interfaces)
+			self.nodes[index] = consumer
+
 		for index in producerIndices:
-			return None
+			identity = "producer:" + str(index)
+			point = Point(0,0)
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			producer = Producer(identity, index, point, interfaces, "lci:/test")
+			self.nodes[index] = consumer
+
 		for index in routerIndices:
-			return None
+			identity = "router:" + str(index)
+			point = Point(0,0)
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			router = Router(identity, index, point, interfaces)
+			self.nodes[index] = router
 
 	def createConnections(self, graph):
-		return None
+		linkNumber = 0
+		for (u, v) in graph.edges():
+			source = self.nodes[u]
+			sourceInterface = source.interfaceMap[v]
+			destination = self.nodes[v]
+			destinationInterface = destination.interfaceMap[u]
+			identity = "connection:" + str(linkNumber)
+			connection = Connection(identity, source.id, sourceInterface, destination.id, destinationInterface)
+			self.connections.append(connection)
+			linkNumber = linkNumber + 1
 
 	def toJSON(self):
-		nodes = "\"nodes\" : [ %s ]" % ",".join(map(lambda node : node.toJSON(), self.nodes))
+		nodes = "\"nodes\" : [ %s ]" % ",".join(map(lambda node : node.toJSON(), self.nodes.values()))
 		channels = "\"channels\" : [ %s ]" % ",".join(map(lambda channel : channel.toJSON(), self.channels))
 		connections = "\"connections\" : [ %s ]" % ",".join(map(lambda connection : connection.toJSON(), self.connections))
 		return "{ %s }" % ",".join([nodes, channels, connections])
+
+class Connection:
+	def __init__(self, identifier, sourceNode, sourceInterface, destNode, destInterface):
+		self.identifier = identifier
+		self.sourceNode = sourceNode
+		self.sourceInterface = sourceInterface
+		self.destNode = destNode
+		self.destInterface = destInterface
+
+	def toJSON(self):
+		sourceNode = "\"source_id\" : \"%s\"" % self.sourceNode
+		sourceInterface = "\"source_interface\" : \"%s\"" % self.sourceInterface
+		destNode = "\"destination_id\" : \"%s\"" % self.destNode
+		destInterface = "\"destination_interface\" : \"%s\"" % self.destInterface
+		channel = "\"channel_id\" : \"%s\"" % self.identifier
+		return "{ %s, %s, %s, %s, %s }" % (sourceNode, sourceInterface, destNode, destInterface, channel)
 
 class Channel:
 	def __init__(self, identifier, dataRate):
@@ -74,24 +123,24 @@ class Point:
 		return "{ %s, %s }" % (xCoord, yCoord)	
 
 class Node(object):
-	def __init__(self, identifier, index, point, interfaces):
+	def __init__(self, identifier, index, point, interfaceMap):
 		self.id = identifier
 		self.index = index
 		self.point = point
-		self.interfaces = interfaces
+		self.interfaceMap = interfaceMap
 
 	def getCommonJSON(self):
 		nodeId = "\"node_id\" : \"%s\"" % self.id
 		nodePoint = "\"point\" : %s " % self.point.toJSON()
-		nodeInterfaces = "\"interfaces\" : [ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaces))
+		nodeInterfaces = "\"interfaces\" : [ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaceMap.values()))
 		return (nodeId, nodePoint, nodeInterfaces)
 
 	def toJSON(self):
 		return ""
 
 class Consumer(Node):
-	def __init__(self, identifier, index, point, interfaces):
-		super(Consumer, self).__init__(identifier, index, point, interfaces)
+	def __init__(self, identifier, index, point, interfaceMap):
+		super(Consumer, self).__init__(identifier, index, point, interfaceMap)
 
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
@@ -99,8 +148,8 @@ class Consumer(Node):
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Router(Node):
-	def __init__(self, identifier, index, point, interfaces):
-		super(Router, self).__init__(identifier, index, point, interfaces)
+	def __init__(self, identifier, index, point, interfaceMap):
+		super(Router, self).__init__(identifier, index, point, interfaceMap)
 
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
@@ -108,8 +157,8 @@ class Router(Node):
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Producer(Node):
-	def __init__(self, id, index, point, interfaces, prefixes):
-		super(Producer, self).__init__(identifier, index, point, interfaces)
+	def __init__(self, identifier, index, point, interfaceMap, prefixes):
+		super(Producer, self).__init__(identifier, index, point, interfaceMap)
 		self.prefixes = prefixes
 
 	def toJSON(self):
@@ -120,11 +169,10 @@ class Producer(Node):
 
 def buildNetwork(graph, consumerNodes, producerNodes, routerNodes):
 	network = Network()
-	network.createNodes(consumerNodes, producerNodes, routerIndices)
-
-	# TODO
-
-	return None
+	network.createChannels(graph)
+	network.createNodes(graph, consumerNodes, producerNodes, routerNodes)
+	network.createConnections(graph)
+	return network
 
 def partitionNodesInGraph(graph, center):
 	queue = []
@@ -156,8 +204,10 @@ def intersect(a, b):
 	return list(set(a) & set(b))
 
 def main(argv):
-	G1 = nx.balanced_tree(2, 2)
-	G2 = nx.balanced_tree(2, 2)
+	# G1 = nx.balanced_tree(2, 2)
+	# G2 = nx.balanced_tree(2, 2)
+
+
 
 	# point = Point(0, 0)
 	# interface = Interface("interface1")
@@ -169,9 +219,24 @@ def main(argv):
 
 	# G = nx.cartesian_product(G1, G2)
 	# G = nx.union(G1, G2)
-	G = nx.strong_product(G1, G2)
+	# G = nx.strong_product(G1, G2)
 	# G = G1
+
+	G = nx.Graph()
+	G.add_node(0)
+	G.add_node(1)
+	G.add_node(2)
+	G.add_node(3)
+	G.add_node(4)
+
+	G.add_edge(0,1)
+	G.add_edge(1,2)
+	G.add_edge(2,3)
+	G.add_edge(3,4)
+
 	print nx.center(G)
+
+	print G.edges()
 
 	consumerNodes = []
 	routerNodes = []
@@ -191,11 +256,11 @@ def main(argv):
 	print "routers = " + str(routerNodes)
 
 	# intersection -- TODO: fix if needed, i.e., if they're not all empty.
-	print intersect(producerNodes, consumerNodes)
-	print intersect(producerNodes, routerNodes)
-	print intersect(consumerNodes, routerNodes)
+	# print intersect(producerNodes, consumerNodes)
+	# print intersect(producerNodes, routerNodes)
+	# print intersect(consumerNodes, routerNodes)
 
-	# TODO: create the network, and then generate the JSON configuration
+	buildNetwork(G, consumerNodes, producerNodes, routerNodes)
 
 	# nx.draw(G)
 	# plt.show(G)
