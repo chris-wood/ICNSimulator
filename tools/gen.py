@@ -220,25 +220,7 @@ def partitionNodesInGraph(graph, center):
 def intersect(a, b):
 	return list(set(a) & set(b))
 
-def main(argv):
-	# G1 = nx.balanced_tree(2, 2)
-	# G2 = nx.balanced_tree(2, 2)
-
-
-
-	# point = Point(0, 0)
-	# interface = Interface("interface1")
-	# c1 = Consumer("consumer1", 0, point, [interface])
-	# print c1.toJSON()
-
-	# http://networkx.lanl.gov/reference/algorithms.operators.html
-	# https://networkx.github.io/documentation/latest/reference/generators.html
-
-	# G = nx.cartesian_product(G1, G2)
-	# G = nx.union(G1, G2)
-	# G = nx.strong_product(G1, G2)
-	# G = G1
-
+def createGraph():
 	G = nx.Graph()
 	G.add_node(0)
 	G.add_node(1)
@@ -250,11 +232,10 @@ def main(argv):
 	G.add_edge(1,2)
 	G.add_edge(2,3)
 	G.add_edge(3,4)
+	return G
 
-	print nx.center(G)
-
-	print G.edges()
-
+def main(argv):
+	G = createGraph()
 	consumerNodes = []
 	routerNodes = []
 	producerNodes = []
@@ -262,26 +243,27 @@ def main(argv):
 	centerNodes = nx.center(G)
 	for centerIndex in range(len(centerNodes)):
 		centerNode = centerNodes[centerIndex]
-		leaves, nonleaves, center = partitionNodesInGraph(G, centerNode)
-		
+		leaves, nonleaves, center = partitionNodesInGraph(G, centerNode)		
 		consumerNodes.extend(leaves)
 		routerNodes.extend(nonleaves)
 		producerNodes.extend([centerNode])
 
-	print "producers = " + str(producerNodes)
-	print "consumers = " + str(consumerNodes)
-	print "routers = " + str(routerNodes)
-
-	# intersection -- TODO: fix if needed, i.e., if they're not all empty.
-	# print intersect(producerNodes, consumerNodes)
-	# print intersect(producerNodes, routerNodes)
-	# print intersect(consumerNodes, routerNodes)
+	if (len(intersect(producerNodes, consumerNodes)) > 0):
+		print >> sys.stderr, "Error: producer and consumer nodes not disjoint"
+		exit()
+	if (len(intersect(producerNodes, routerNodes)) > 0):
+		print >> sys.stderr, "Error: producer and router nodes not disjoint"
+		exit()
+	if (len(intersect(consumerNodes, routerNodes)) > 0):
+		print >> sys.stderr, "Error: consumer and router nodes not disjoint"
+		exit()
 
 	network = buildNetwork(G, consumerNodes, producerNodes, routerNodes)
-	print network.toJSON()
+	print >> sys.stdout, network.toJSON()
 
-	# nx.draw(G)
-	# plt.show(G)
+	# if argv.plot:
+	# 	nx.draw(G)
+	# 	plt.show(G)
 
 if __name__ == "__main__":
 	main(sys.argv)
