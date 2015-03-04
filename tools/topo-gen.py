@@ -6,394 +6,268 @@ import json
 import random
 import math
 import matplotlib.pyplot as plt
+import networkx as nx
+import argparse
 from matplotlib.backends.backend_pdf import PdfPages
-from collections import deque
 
+def createChannelName(source, dest):
+	return "channel:" + str(source) + "-" + str(dest)
 
-def usage(tool_name):
-    print ""
-    print "usage: " + tool_name + " -c <configFile> -o <outputFile>"
-    print ""
+class Network:
+	def __init__(self):
+		self.connections = []
+		self.channels = []
+		self.nodes = {}
 
+	def addNode(self, node):
+		self.nodes.append(node)
 
-def main(argv):
-    configFile = ''
-    outputFile = ''
+	def addConnection(self, conn):
+		self.connections.append(conn)
 
-    routers = 0
-    consumers = 0
-    producers = 0
-    channels = 0
+	def addChannel(self, channel):
+		self.channels.append(channel)
 
-    maxXCoord= 0
-    maxYCoord = 0
+	def createChannels(self, graph, dataRateDistribution = [100]):
+		for (u, v) in graph.edges():
+			identifier = createChannelName(u, v)
+			dataRate = random.choice(dataRateDistribution)
+			channel = Channel(identifier, dataRate)
+			self.channels.append(channel)
 
-    minRoutersLinks = 0
-    maxRoutersLinks = 0
-    minConsumersLinks = 0
-    maxConsumersLinks = 0
-    minProducersLinks = 0
-    maxProducersLinks = 0
+	def createInterfaceMapForNode(self, node, neighbors):
+		interfaceMap = {}
+		for neighbor in neighbors:
+			identifier = "interface:" + str(node) + "#" + str(neighbor)
+			interfaceMap[neighbor] = Interface(identifier)
+		return interfaceMap
 
-    channelRates = []
+	# TODO: refactor this code, pull out common node creation logic
+	def createNodes(self, graph, consumerIndices, producerIndices, routerIndices):
+		for index in consumerIndices:
+			identity = "consumer:" + str(index)
+			point = Point(0,0)
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			consumer = Consumer(identity, index, point, interfaces)
+			self.nodes[index] = consumer
 
-    topologies = 1
-    plotTopology = False
+		for index in producerIndices:
+			identity = "producer:" + str(index)
+			point = Point(0,0)
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			producer = Producer(identity, index, point, interfaces, ["lci:/test"])
+			self.nodes[index] = producer
 
-    try:
-        opts, args = getopt.getopt(argv[1:],
-                                   "hc:o:",
-                                   ["configFile=",
-                                    "outputFile="])
-    except getopt.GetoptError:
-        usage(argv[0])
-        sys.exit(1)
+		for index in routerIndices:
+			identity = "router:" + str(index)
+			point = Point(0,0)
+			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
+			router = Router(identity, index, point, interfaces)
+			self.nodes[index] = router
 
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            usage(argv[0])
-            sys.exit()
-        elif opt in ("-c", "--configFile"):
-            configFile = arg
-        elif opt in ("-o", "--outputFile"):
-            outputFile = arg
+	def createConnections(self, graph):
+		linkNumber = 0
+		for (u, v) in graph.edges():
+			source = self.nodes[u]
+			sourceInterface = source.interfaceMap[v]
+			destination = self.nodes[v]
+			destinationInterface = destination.interfaceMap[u]
 
-    if configFile == '':
-        print "Must specify config file"
-        sys.exit(1)
+			identity = createChannelName(u, v)
+			connection = Connection(identity, source.id, sourceInterface, destination.id, destinationInterface)
+			self.connections.append(connection)
 
-    if outputFile == '':
-        print "Must specify output file"
-        sys.exit(1)
+			linkNumber = linkNumber + 1
 
-    with open(configFile, 'r') as cFile:
-        config = json.load(cFile)
+	def toJSON(self):
+		nodes = "\"nodes\" : [ %s ]" % ",".join(map(lambda node : node.toJSON(), self.nodes.values()))
+		channels = "\"channels\" : [ %s ]" % ",".join(map(lambda channel : channel.toJSON(), self.channels))
+		connections = "\"connections\" : [ %s ]" % ",".join(map(lambda connection : connection.toJSON(), self.connections))
+		return "{ %s }" % ",".join([nodes, channels, connections])
 
-    if "routers" in config:
-        routers = int(config["routers"])
-    else:
-        print "Missing number of routers in config"
-        sys.exit(1)
+class Connection:
+	def __init__(self, identifier, sourceNode, sourceInterface, destNode, destInterface):
+		self.identifier = identifier
+		self.sourceNode = sourceNode
+		self.sourceInterface = sourceInterface
+		self.destNode = destNode
+		self.destInterface = destInterface
 
-    if "consumers" in config:
-        consumers = int(config["consumers"])
-    else:
-        print "Missing number of consumers in config"
-        sys.exit(1)
+	def toJSON(self):
+		sourceNode = "\"source_id\" : \"%s\"" % self.sourceNode
+		sourceInterface = "\"source_interface\" : \"%s\"" % self.sourceInterface
+		destNode = "\"destination_id\" : \"%s\"" % self.destNode
+		destInterface = "\"destination_interface\" : \"%s\"" % self.destInterface
+		channel = "\"channel_id\" : \"%s\"" % self.identifier
+		return "{ %s, %s, %s, %s, %s }" % (sourceNode, sourceInterface, destNode, destInterface, channel)
 
-    if "producers" in config:
-        producers = int(config["producers"])
-    else:
-        print "Missing number of producers in config"
-        sys.exit(1)
+	def __str__(self):
+		return str(self.identifier)
 
-    if "channels" in config:
-        channels = int(config["channels"])
-    else:
-        print "Missing number of channels in config"
-        sys.exit(1)
+class Channel:
+	def __init__(self, identifier, dataRate):
+		self.id = identifier
+		self.dataRate = dataRate
 
-    if "dimensions" in config:
-        maxXCoord = int(config["dimensions"].split("x")[0])
-        maxYCoord = int(config["dimensions"].split("x")[1])
-    else:
-        print "Missing dimensions in config"
-        sys.exit(1)
+	def toJSON(self):
+		channelId = "\"channel_id\" : \"%s\"" % self.id
+		dataRate = "\"data_rate\" : \"%s\"" % self.dataRate
+		return "{ %s, %s }" % (channelId, dataRate)	
 
-    if "routers-links" in config:
-        if "-" in config["routers-links"]:
-            minRoutersLinks = int(config["routers-links"].split("-")[0])
-            maxRoutersLinks = int(config["routers-links"].split("-")[1])
-        else:
-            minRoutersLinks = int(config["routers-links"])
-            maxRoutersLinks = int(config["routers-links"])
-    else:
-        print "Missing number of routers links in config"
-        sys.exit(1)
+	def __str__(self):
+		return str(self.id)
 
-    if "consumers-links" in config:
-        if "-" in config["consumers-links"]:
-            minConsumersLinks = int(
-                config["consumers-links"].split("-")[0])
-            maxConsumersLinks = int(
-                config["consumers-links"].split("-")[1])
-        else:
-            minConsumersLinks = int(config["consumers-links"])
-            maxConsumersLinks = int(config["consumers-links"])
-    else:
-        print "Missing number of consumers links in config"
-        sys.exit(1)
+class Interface:
+	def __init__(self, identifier):
+		self.id = identifier
 
-    if "producers-links" in config:
-        if "-" in config["producers-links"]:
-            minProducersLinks = int(
-                config["producers-links"].split("-")[0])
-            maxProducersLinks = int(
-                config["producers-links"].split("-")[1])
-        else:
-            minProducersLinks = int(config["producers-links"])
-            maxProducersLinks = int(config["producers-links"])
-    else:
-        print "Missing number of producers links in config"
-        sys.exit(1)
+	def toJSON(self):
+		return "{ \"interface_id\" : \"%s\" }" % self.id
 
-    if "channel-rates" in config:
-        channelRates = config["channel-rates"].split(",")
-    else:
-        print "Missing channel rates in config"
-        sys.exit(1)
+	def __str__(self):
+		return str(self.id)
 
-    if "topologies" in config:
-        topologies = int(config["topologies"])
+class Point:
+	def __init__(self, xCoord, yCoord):
+		self.xCoord = xCoord
+		self.yCoord = yCoord
 
-    if "plot" in config:
-        if config["plot"] in ("True", "true"):
-            plotTopology = True
-        elif config["plot"] in ("False", "false"):
-            plotTopology = False
-        else:
-            print "Invalid plot value (should be True/False)"
-            sys.exit(1)
+	def toJSON(self):
+		xCoord = "\"x-coord\" : \"%s\"" % self.xCoord	
+		yCoord = "\"y-coord\" : \"%s\"" % self.yCoord
+		return "{ %s, %s }" % (xCoord, yCoord)	
 
-    r_startindex = 1
-    r_endindex = routers
-    c_startindex = routers + 1
-    c_endindex = routers + consumers
-    p_startindex = routers + consumers + 1
-    p_endindex = routers + consumers + producers
+class Node(object):
+	def __init__(self, identifier, index, point, interfaceMap):
+		self.id = identifier
+		self.index = index
+		self.point = point
+		self.interfaceMap = interfaceMap
 
-    fn = 1
-    while fn < topologies + 1:
-        topology = {"nodes": [], "channels": [], "connections": []}
+	def getCommonJSON(self):
+		nodeId = "\"node_id\" : \"%s\"" % self.id
+		nodePoint = "\"point\" : %s " % self.point.toJSON()
+		nodeInterfaces = "\"interfaces\" : [ %s ]" % ",".join(map(lambda interface : interface.toJSON(), self.interfaceMap.values()))
+		return (nodeId, nodePoint, nodeInterfaces)
 
-        # Add channels
-        for ch in range(1, channels + 1):
-            topology["channels"].append({
-                "channel_id": "channel" + str(ch),
-                "data_rate": str(channelRates[random.randint(
-                    0, len(channelRates) - 1)])})
+	def toJSON(self):
+		return ""
 
-        # Add routers
-        nodes = {}
-        connections = []
-        routersDict = {}
-        routersConnections = []
-        for r in range(r_startindex, r_endindex + 1):
-            xCoord = round(random.uniform(0 + 0.1 * maxXCoord, 
-                                          maxXCoord - 0.1 * maxYCoord), 
-                           2)
-            yCoord = round(random.uniform(0 + 0.1 * maxYCoord, 
-                                          maxYCoord - 0.1 * maxYCoord), 
-                           2)
-            topology["nodes"].append({
-                "node_id": "node" + str(r),
-                "node_type": "router",
-                "x-coord": str(xCoord),
-                "y-coord": str(yCoord),
-                "interfaces": [{"interface_id": "interface1"}]})
-            routersDict[r] = [xCoord, yCoord]
-            nodes[r] = [xCoord, yCoord, "router"]
+	def __str__(self):
+		return str(self.id)
 
-        # Connect each routers to nearest N neighbors
-        for r in range(r_startindex, r_endindex + 1):
-            nearest = nearestN(routersDict, r, 
-                               routersDict[r][0],
-                               routersDict[r][1],
-                               random.randint(minRoutersLinks,
-                                              maxRoutersLinks))
-            for i in range(0, len(nearest)):
-                tmp = str(r) + "-" + str(nearest[i][0])
-                if tmp not in routersConnections:
-                    topology["connections"].append({
-                        "source_id": "node" + str(r),
-                        "source_interface": "interface1",
-                        "destination_id": "node" + str(nearest[i][0]),
-                        "destination_interface": "interface1",
-                        "channel_id": "channel" + str(random.randint(
-                            1, channels))})
-                    routersConnections.append(tmp)
-                    connections.append([r, nearest[i][0]])
+class Consumer(Node):
+	def __init__(self, identifier, index, point, interfaceMap):
+		super(Consumer, self).__init__(identifier, index, point, interfaceMap)
 
-        # Calculate the area where routers are located
-        routerMinX = routersDict[r_startindex][0]
-        routerMaxX = routersDict[r_startindex][0]
-        routerMinY = routersDict[r_startindex][1]
-        routerMaxY = routersDict[r_startindex][1]
-        for r in range(r_startindex + 1, r_endindex + 1):
-            if routersDict[r][0] < routerMinX:
-                routerMinX = routersDict[r][0]
-            if routersDict[r][0] > routerMaxX:
-                routerMaxX = routersDict[r][0]
-            if routersDict[r][1] < routerMinY:
-                routerMinY = routersDict[r][1]
-            if routersDict[r][1] > routerMaxY:
-                routerMaxY = routersDict[r][1]
+	def toJSON(self):
+		parentJSON = ",".join(self.getCommonJSON())
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		return "{ %s }" % ",".join([parentJSON, nodeType])
 
-        routersAreaX = routerMaxX - routerMinX
-        routersAreaY = routerMaxY - routerMinY
+class Router(Node):
+	def __init__(self, identifier, index, point, interfaceMap):
+		super(Router, self).__init__(identifier, index, point, interfaceMap)
 
-        # Add consumers
-        for c in range(c_startindex, c_endindex + 1):
-            xCoord = round(random.uniform(0,
-                                          routerMinX + maxXCoord - 
-                                          routerMaxX), 2)
-            yCoord = round(random.uniform(0,
-                                          routerMinY + maxYCoord - 
-                                          routerMaxY), 2)
-            if xCoord > routerMinX:
-                xCoord = xCoord + routersAreaX
-            if yCoord > routerMinY:
-                yCoord = yCoord + routersAreaY
-            topology["nodes"].append({
-                "node_id": "node" + str(c),
-                "node_type": "consumer",
-                "x-coord": str(xCoord),
-                "y-coord": str(yCoord),
-                "interfaces": [{"interface_id": "interface1"}]})
-            nodes[c] = [xCoord, yCoord, "consumer"]
+	def toJSON(self):
+		parentJSON = ",".join(self.getCommonJSON())
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		return "{ %s }" % ",".join([parentJSON, nodeType])
 
-            # Connect consumer to nearest N routers
-            nearest = nearestN(routersDict, -1,
-                               xCoord, yCoord,
-                               random.randint(minConsumersLinks,
-                                              maxConsumersLinks))
-            for i in range(0, len(nearest)):
-                topology["connections"].append({
-                    "source_id": "node" + str(c),
-                    "source_interface": "interface1",
-                    "destination_id": "node" + str(nearest[i][0]),
-                    "destination_interface": "interface1",
-                    "channel_id": "channel" + str(random.randint(
-                        1, channels))})
-                connections.append([nearest[i][0], c])
+class Producer(Node):
+	def __init__(self, identifier, index, point, interfaceMap, prefixes):
+		super(Producer, self).__init__(identifier, index, point, interfaceMap)
+		self.prefixes = prefixes
 
-        # Add producers
-        for p in range(p_startindex, p_endindex + 1):
-            xCoord = round(random.uniform(0,
-                                          routerMinX + maxXCoord - 
-                                          routerMaxX), 2)
-            yCoord = round(random.uniform(0,
-                                          routerMinY + maxYCoord - 
-                                          routerMaxY), 2)
-            if xCoord > routerMinX:
-                xCoord = xCoord + routersAreaX
-            if yCoord > routerMinY:
-                yCoord = yCoord + routersAreaY
-            topology["nodes"].append({
-                "node_id": "node" + str(p),
-                "node_type": "producer",
-                "x-coord": str(xCoord),
-                "y-coord": str(yCoord),
-                "interfaces": [{"interface_id": "interface1"}]})
-            nodes[p] = [xCoord, yCoord, "producer"]
+	def toJSON(self):
+		parentJSON = ",".join(self.getCommonJSON())
+		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
+		prefixes = "\"prefixes\" : [ %s ]" % ",".join(map(lambda prefix : "\"" + prefix + "\"", self.prefixes))
+		return "{ %s }" % ",".join([parentJSON, nodeType, prefixes])
 
-            # Connect producer to nearest N routers
-            nearest = nearestN(routersDict, -1,
-                               xCoord, yCoord,
-                               random.randint(minProducersLinks,
-                                              maxProducersLinks))
-            for i in range(0, len(nearest)):
-                topology["connections"].append({
-                    "source_id": "node" + str(p),
-                    "source_interface": "interface1",
-                    "destination_id": "node" + str(nearest[i][0]),
-                    "destination_interface": "interface1",
-                    "channel_id": "channel" + str(random.randint(
-                        1, channels))})
-                connections.append([nearest[i][0], p])
+def buildNetwork(graph, consumerNodes, producerNodes, routerNodes):
+	network = Network()
+	network.createChannels(graph)
+	network.createNodes(graph, consumerNodes, producerNodes, routerNodes)
+	network.createConnections(graph)
+	return network
 
-        # Verify that the graph has a single component
-        if not isConnected(nodes, connections):
-            continue
+def partitionNodesInGraph(graph, center):
+	queue = []
+	visited = {}
 
-        # Write out json file
-        with open(outputFile + "_" + str(fn) + ".json", "w") as ofile:
-            json.dump(topology, ofile, sort_keys=True,
-                      indent=4, separators=(',', ': '))
+	height = 0
+	queue.append((center, height))
 
-        # Plot to PDF
-        if plotTopology:
-            fig = plt.figure()
-            splt = fig.add_subplot(1, 1, 1)
-            # Plotting all connections
-            for conn in connections:
-                x = [nodes[conn[0]][0],
-                     nodes[conn[1]][0]]
-                y = [nodes[conn[0]][1],
-                     nodes[conn[1]][1]]
-                splt.plot(x, y, '-k')
+	while (len(queue) > 0):
+		(node, currentLevel) = queue.pop(0)
+		if (not (node in visited)):
+			visited[node] = currentLevel
+			for neighbor in graph.neighbors(node):
+				queue.append((neighbor, currentLevel + 1))
+			if (height == currentLevel):
+				height = height + 1
 
-            # Plotting nodes
-            for n in nodes:
-                faceColor = ""
-                if nodes[n][2] == "router":
-                     faceColor = "red"
-                elif nodes[n][2] == "consumer":
-                     faceColor = "blue"
-                elif nodes[n][2] == "producer":
-                     faceColor = "green"
+	leaves = []
+	nonleaves = []
+	for node in visited:
+		if (visited[node] == height - 1):
+			leaves.append(node)
+		elif node != center:
+			nonleaves.append(node)
 
-                splt.plot(nodes[n][0], nodes[n][1], "or", 
-                          ms=10, mfc=faceColor, 
-                          mec="black", mew=2)
+	return leaves, nonleaves, center
 
-            splt.set_xlim([-.5, maxXCoord + .5])
-            splt.set_ylim([-.5, maxYCoord + .5])
-            splt.axes.get_xaxis().set_visible(False)
-            splt.axes.get_yaxis().set_visible(False)
-            splt.grid()
-            pdf = PdfPages(outputFile + "_" + str(fn) + ".pdf")
-            pdf.savefig(fig)
-            pdf.close()
+def intersect(a, b):
+	return list(set(a) & set(b))
 
-            fn = fn + 1
+def createGraph():
+	G = nx.Graph()
+	G.add_node(0)
+	G.add_node(1)
+	G.add_node(2)
+	G.add_node(3)
+	G.add_node(4)
 
+	G.add_edge(0,1)
+	G.add_edge(1,2)
+	G.add_edge(2,3)
+	G.add_edge(3,4)
+	return G
 
-def nearestN(routersDict, index, xCoord, yCoord, N):
-    distances = []
-    for r in routersDict:
-        if r != index:
-            distances.append([r,
-                              math.hypot(
-                                  routersDict[r][0] - xCoord,
-                                  routersDict[r][1] - yCoord)])
+def main(args):
+	G = createGraph()
+	consumerNodes = []
+	routerNodes = []
+	producerNodes = []
 
-    distances.sort(key=lambda x: x[1])
-    return distances[:N]
+	centerNodes = nx.center(G)
+	for centerIndex in range(len(centerNodes)):
+		centerNode = centerNodes[centerIndex]
+		leaves, nonleaves, center = partitionNodesInGraph(G, centerNode)		
+		consumerNodes.extend(leaves)
+		routerNodes.extend(nonleaves)
+		producerNodes.extend([centerNode])
 
+	if (len(intersect(producerNodes, consumerNodes)) > 0):
+		print >> sys.stderr, "Error: producer and consumer nodes not disjoint"
+		exit()
+	if (len(intersect(producerNodes, routerNodes)) > 0):
+		print >> sys.stderr, "Error: producer and router nodes not disjoint"
+		exit()
+	if (len(intersect(consumerNodes, routerNodes)) > 0):
+		print >> sys.stderr, "Error: consumer and router nodes not disjoint"
+		exit()
 
-def isConnected(vertices, connections):
-    edges = {}
-    for conn in connections:
+	network = buildNetwork(G, consumerNodes, producerNodes, routerNodes)
+	print >> sys.stdout, network.toJSON()
 
-        if conn[0] not in edges:
-            edges[conn[0]] = []
-        edges[conn[0]].append(conn[1])
-
-        if conn[1] not in edges:
-            edges[conn[1]] = []
-        edges[conn[1]].append(conn[0])
-
-    colors = {}
-    for v in vertices:
-        colors[v] = "w"
-
-    colors[1] = "g"
-    count = 0
-    queue = deque([1])
-    while len(queue) is not 0:
-        u = queue.popleft()
-        for v in edges[u]:
-            if colors[v] == "w":
-                colors[v] = "g"
-                queue.append(v)
-        colors[u] = "b"
-        count = count + 1
-
-    if count == len(vertices):
-        return True
-    else:
-        return False
+	if len(args.plot) > 0:
+		nx.draw(G)
+		plt.savefig(args.plot)
 
 if __name__ == "__main__":
-    main(sys.argv)
+	parser = argparse.ArgumentParser(prog='gen', formatter_class=argparse.RawDescriptionHelpFormatter, description="Generator for CCN network topologies")
+	parser.add_argument('-p', '--plot', default="", action="store", help="Plot the resulting network to the specified file")
+	args = parser.parse_args()
+	main(args)
