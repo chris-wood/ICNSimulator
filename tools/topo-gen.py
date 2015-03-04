@@ -13,6 +13,91 @@ from matplotlib.backends.backend_pdf import PdfPages
 def createChannelName(source, dest):
 	return "channel:" + str(source) + "-" + str(dest)
 
+class Graph:
+	def __init__(self):
+		self.graph = nx.Graph()
+
+	def add_node(self, i):
+		self.graph.add_node(i)
+
+	def add_edge(self, u, v):
+		self.graph.add_edge(u, v)
+
+	def nodes(self):
+		return self.graph.nodes()
+
+	def edges(self):
+		return self.graph.edges()
+
+	def neighbors(self, i):
+		return self.graph.neighbors(i)
+
+	def getCenterNodes(self):
+		return nx.center(self.graph)
+
+	def partitionNodesFromCenter(self, center):
+		queue = []
+		visited = {}
+
+		height = 0
+		queue.append((center, height))
+
+		while (len(queue) > 0):
+			(node, currentLevel) = queue.pop(0)
+			if (not (node in visited)):
+				visited[node] = currentLevel
+				for neighbor in self.graph.neighbors(node):
+					queue.append((neighbor, currentLevel + 1))
+				if (height == currentLevel):
+					height = height + 1
+
+		leaves = []
+		nonleaves = []
+		for node in visited:
+			if (visited[node] == height - 1):
+				leaves.append(node)
+			elif node != center:
+				nonleaves.append(node)
+
+		return leaves, nonleaves, center
+
+	def partition(self):
+		self.consumerNodes = []
+		self.routerNodes = []
+		self.producerNodes = []
+
+		centerNodes = nx.center(self.graph)
+		for centerIndex in range(len(centerNodes)):
+			centerNode = centerNodes[centerIndex]
+			leaves, nonleaves, center = self.partitionNodesFromCenter(centerNode)		
+			self.consumerNodes.extend(leaves)
+			self.routerNodes.extend(nonleaves)
+			self.producerNodes.extend([centerNode])
+
+		if not self.isValidPartition():
+			raise Exception("Invalid graph partition")
+
+	def isValidPartition(self):
+		if (len(intersect(self.producerNodes, self.consumerNodes)) > 0):
+			print >> sys.stderr, "Error: producer and consumer nodes not disjoint"
+			return False
+		if (len(intersect(self.producerNodes, self.routerNodes)) > 0):
+			print >> sys.stderr, "Error: producer and router nodes not disjoint"
+			return False
+		if (len(intersect(self.consumerNodes, self.routerNodes)) > 0):
+			print >> sys.stderr, "Error: consumer and router nodes not disjoint"
+			return False
+		return True
+
+	def getConsumers(self):
+		return self.consumerNodes
+
+	def getProducers(self):
+		return self.producerNodes
+
+	def getRouters(self):
+		return self.routerNodes
+
 class Network:
 	def __init__(self):
 		self.connections = []
@@ -185,89 +270,80 @@ class Producer(Node):
 		prefixes = "\"prefixes\" : [ %s ]" % ",".join(map(lambda prefix : "\"" + prefix + "\"", self.prefixes))
 		return "{ %s }" % ",".join([parentJSON, nodeType, prefixes])
 
-def buildNetwork(graph, consumerNodes, producerNodes, routerNodes):
+def buildNetworkFromGraph(graph):
 	network = Network()
 	network.createChannels(graph)
-	network.createNodes(graph, consumerNodes, producerNodes, routerNodes)
+	network.createNodes(graph, graph.getConsumers(), graph.getProducers(), graph.getRouters())
 	network.createConnections(graph)
 	return network
-
-def partitionNodesInGraph(graph, center):
-	queue = []
-	visited = {}
-
-	height = 0
-	queue.append((center, height))
-
-	while (len(queue) > 0):
-		(node, currentLevel) = queue.pop(0)
-		if (not (node in visited)):
-			visited[node] = currentLevel
-			for neighbor in graph.neighbors(node):
-				queue.append((neighbor, currentLevel + 1))
-			if (height == currentLevel):
-				height = height + 1
-
-	leaves = []
-	nonleaves = []
-	for node in visited:
-		if (visited[node] == height - 1):
-			leaves.append(node)
-		elif node != center:
-			nonleaves.append(node)
-
-	return leaves, nonleaves, center
 
 def intersect(a, b):
 	return list(set(a) & set(b))
 
-def createGraph():
-	G = nx.Graph()
-	G.add_node(0)
-	G.add_node(1)
-	G.add_node(2)
-	G.add_node(3)
-	G.add_node(4)
+def createPathGraph(l):
+	G = Graph()
+	for i in range(0, l):
+		G.add_node(i)
+	for i in range(0, l - 1):
+		G.add_edge(i, i + 1)
 
-	G.add_edge(0,1)
-	G.add_edge(1,2)
-	G.add_edge(2,3)
-	G.add_edge(3,4)
+	try:
+		G.partition()
+	except Exception as e:
+		print str(e)
+		return None
+
 	return G
 
+def createTreeGraph(k, min, max):
+	G = nx.Graph()
+
+	try:
+		G.partition()
+	except:
+		return None
+
+	return G
+
+def createRandomGraph(c, p, r):
+	G = nx.Graph()
+
+	try:
+		G.partition()
+	except:
+		return None
+
+	return G
+
+def createBasicGraph():
+	return createPathGraph(5) # simple path graph of length 5
+
+def createGraph(args):
+	if args.random:
+		values = args.random
+		return createRandomGraph(values[0], values[1], values[2])
+	elif args.tree:
+		values = args.tree
+		return createTreeGraph(values[0], values[1], values[2])
+	elif args.path:
+		values = args.path
+		return createPathGraph(values[0])
+	else:	
+		return createBasicGraph()
+
 def main(args):
-	G = createGraph()
-	consumerNodes = []
-	routerNodes = []
-	producerNodes = []
-
-	centerNodes = nx.center(G)
-	for centerIndex in range(len(centerNodes)):
-		centerNode = centerNodes[centerIndex]
-		leaves, nonleaves, center = partitionNodesInGraph(G, centerNode)		
-		consumerNodes.extend(leaves)
-		routerNodes.extend(nonleaves)
-		producerNodes.extend([centerNode])
-
-	if (len(intersect(producerNodes, consumerNodes)) > 0):
-		print >> sys.stderr, "Error: producer and consumer nodes not disjoint"
-		exit()
-	if (len(intersect(producerNodes, routerNodes)) > 0):
-		print >> sys.stderr, "Error: producer and router nodes not disjoint"
-		exit()
-	if (len(intersect(consumerNodes, routerNodes)) > 0):
-		print >> sys.stderr, "Error: consumer and router nodes not disjoint"
-		exit()
-
-	network = buildNetwork(G, consumerNodes, producerNodes, routerNodes)
+	graph = createGraph(args)
+	network = buildNetworkFromGraph(graph)
 	print >> sys.stdout, network.toJSON()
-
-	if len(args.plot) > 0:
+	if len(args.draw) > 0:
 		nx.draw(G)
-		plt.savefig(args.plot)
+		plt.savefig(args.draw)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(prog='gen', formatter_class=argparse.RawDescriptionHelpFormatter, description="Generator for CCN network topologies")
-	parser.add_argument('-p', '--plot', default="", action="store", help="Plot the resulting network to the specified file")
+	parser.add_argument('-r', '--random', type=int, metavar=('C', 'P', 'R'), nargs=3, help="Produce a random graph topology with C consumers, P producers, and R routers")
+	parser.add_argument('-t', '--tree', type=int, metavar=('k', 'min', 'max'), nargs=3, help="Produce a k-ary tree where each path has height between min and max")
+	parser.add_argument('-p', '--path', type=int, metavar=('l'), nargs=1, help="Producer a path graph of the length l")
+	parser.add_argument('-d', '--draw', default="", action="store", help="Plot the resulting network to the specified file")
 	args = parser.parse_args()
 	main(args)
