@@ -16,9 +16,24 @@ def createChannelName(source, dest):
 class Graph:
 	def __init__(self):
 		self.graph = nx.Graph()
+		self.consumerNodes = []
+		self.routerNodes = []
+		self.producerNodes = []
 
 	def add_node(self, i):
 		self.graph.add_node(i)
+
+	def add_consumer(self, i):
+		self.graph.add_node(i)
+		self.consumerNodes.append(i)
+
+	def add_producer(self, i):
+		self.graph.add_node(i)
+		self.producerNodes.append(i)
+
+	def add_router(self, i):
+		self.graph.add_node(i)
+		self.routerNodes.append(i)
 
 	def add_edge(self, u, v):
 		self.graph.add_edge(u, v)
@@ -62,10 +77,6 @@ class Graph:
 		return leaves, nonleaves, center
 
 	def partition(self):
-		self.consumerNodes = []
-		self.routerNodes = []
-		self.producerNodes = []
-
 		centerNodes = nx.center(self.graph)
 		for centerIndex in range(len(centerNodes)):
 			centerNode = centerNodes[centerIndex]
@@ -296,22 +307,19 @@ def createPathGraph(l):
 	return G
 
 def createTreeGraph(k, min, max):
-	G = nx.Graph()
-
-	try:
-		G.partition()
-	except:
-		return None
-
-	return G
+	return None
 
 def createRandomGraph(c, p, r):
-	G = nx.Graph()
+	G = Graph()
 
-	try:
-		G.partition()
-	except:
-		return None
+	for i in range(c):
+		G.add_consumer(i)
+	for i in range(p):
+		G.add_producer(i)
+	for i in range(r):
+		G.add_router(i)
+
+	# TODO: make the connections as needed
 
 	return G
 
