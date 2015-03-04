@@ -13,12 +13,32 @@ from matplotlib.backends.backend_pdf import PdfPages
 def createChannelName(source, dest):
 	return "channel:" + str(source) + "-" + str(dest)
 
-class Graph:
+def karyPath(k, num, length=8):
+	path = []
+	while len(path) < length:
+		if (num == 0):
+			path.insert(0, 0)
+		else:
+			pathChoice = num % k
+			num = num / k
+			path.insert(0, pathChoice)
+	return path
+
+class Graph(object):
 	def __init__(self):
 		self.graph = nx.Graph()
 		self.consumerNodes = []
 		self.routerNodes = []
 		self.producerNodes = []
+
+	def getGraph(self):
+		return self.graph
+
+	def numberOfNodes(self):
+		return len(self.graph.nodes())
+
+	def numberOfEdges(self):
+		return len(self.graph.edges())
 
 	def add_node(self, i):
 		self.graph.add_node(i)
@@ -46,6 +66,12 @@ class Graph:
 
 	def neighbors(self, i):
 		return self.graph.neighbors(i)
+
+	def restrictedNeighbors(self, i, removeList):
+		if None in removeList:
+			return self.neighbors(i)
+		else:
+			return filter(lambda x: x not in removeList, self.graph.neighbors(i))
 
 	def getCenterNodes(self):
 		return nx.center(self.graph)
@@ -80,7 +106,7 @@ class Graph:
 		centerNodes = nx.center(self.graph)
 		for centerIndex in range(len(centerNodes)):
 			centerNode = centerNodes[centerIndex]
-			leaves, nonleaves, center = self.partitionNodesFromCenter(centerNode)		
+			leaves, nonleaves, center = self.partitionNodesFromCenter(centerNode)
 			self.consumerNodes.extend(leaves)
 			self.routerNodes.extend(nonleaves)
 			self.producerNodes.extend([centerNode])
@@ -109,14 +135,34 @@ class Graph:
 	def getRouters(self):
 		return self.routerNodes
 
+class Tree(Graph):
+	def __init__(self):
+		super(Tree, self).__init__()
+
+	def addPathFromRoot(self, root, path):
+		currentNode = root
+		previousNode = None
+		for i in range(len(path)):
+			neighbors = self.restrictedNeighbors(currentNode, [previousNode])
+			pathChoice = path[i]
+			while len(neighbors) <= pathChoice:
+				newNode = self.numberOfNodes()
+				self.add_node(newNode)
+				self.add_edge(currentNode, newNode)
+				neighbors = self.restrictedNeighbors(currentNode, [previousNode])
+			previousNode = currentNode
+			currentNode = neighbors[pathChoice]
+
+	def partition(self):
+		leaves, nonleaves, center = self.partitionNodesFromCenter(0) # 0 is the center, by convention
+		self.consumerNodes.extend(leaves)
+		self.routerNodes.extend(nonleaves)
+
 class Network:
 	def __init__(self):
 		self.connections = []
 		self.channels = []
 		self.nodes = {}
-
-	def addNode(self, node):
-		self.nodes.append(node)
 
 	def addConnection(self, conn):
 		self.connections.append(conn)
@@ -306,8 +352,26 @@ def createPathGraph(l):
 
 	return G
 
-def createTreeGraph(k, min, max):
-	return None
+def createTreeGraph(k, minLength, maxLength):
+	tree = Tree()
+
+	producerNode = 0
+	tree.add_producer(producerNode)
+
+	numLeaves = k**maxLength
+	formatString = '#0' + str(maxLength) + 'b'
+	for leaf in range(numLeaves):
+		height = random.randint(minLength, maxLength)
+		path = karyPath(k, leaf, maxLength)
+		tree.addPathFromRoot(producerNode, path)
+
+	try:
+		tree.partition()
+	except Exception as e:
+		print str(e)
+		return None
+
+	return tree
 
 def createRandomGraph(c, p, r):
 	G = Graph()
@@ -344,7 +408,7 @@ def main(args):
 	network = buildNetworkFromGraph(graph)
 	print >> sys.stdout, network.toJSON()
 	if len(args.draw) > 0:
-		nx.draw(G)
+		nx.draw(graph.getGraph())
 		plt.savefig(args.draw)
 
 if __name__ == "__main__":
