@@ -63,4 +63,8 @@ public abstract class Node extends Component {
 			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + event);
 		}
 	}
+	
+	public void displayStatistics() {
+		statTracker.display();
+	}
 }

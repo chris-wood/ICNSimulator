@@ -37,6 +37,8 @@ public class Simulator extends Thread {
 			
 			System.err.println("Starting dispatcher");
 			dispatcher.run();
+			System.err.println("Displaying statistics");
+			dispatcher.displayStats();
 			System.err.println("Ending dispatcher");
 		} catch (Exception ex) {
 			ex.printStackTrace();

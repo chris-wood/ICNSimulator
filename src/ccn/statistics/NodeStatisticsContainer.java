@@ -41,5 +41,15 @@ public class NodeStatisticsContainer {
 		numReceivedNACKs++;
 		logMessage();
 	}
+	
+	// TODO: this could possibly take a stream as input
+	public void display() {
+		System.out.printf("Received messages = %d\n", numReceivedMessages);
+		System.out.printf("Received interests = %d (%%f)\n", numReceivedInterests, (double)numReceivedInterests / (double)numReceivedMessages);
+		System.out.printf("Received content objects = %d (%%f)\n", numReceivedContentObjects, (double)numReceivedContentObjects / (double)numReceivedMessages);
+		System.out.printf("Received virtual interests = %d (%%f)\n", numReceivedVirtualInterests, (double)numReceivedVirtualInterests / (double)numReceivedMessages);
+		System.out.printf("Received RIP messages = %d (%%f)\n", numReceivedRIPMessages, (double)numReceivedRIPMessages / (double)numReceivedMessages);
+		System.out.printf("Received NACKs = %d (%%f)\n", numReceivedNACKs, (double)numReceivedNACKs / (double)numReceivedMessages);
+	}
 
 }

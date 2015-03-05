@@ -1,5 +1,6 @@
 package simulation;
 
+import ccn.entity.Node;
 import dispatch.Dispatcher;
 
 public class SimulationDispatcher extends Dispatcher {
@@ -10,7 +11,7 @@ public class SimulationDispatcher extends Dispatcher {
 	
 	@Override
 	public void beginEpoch(long time) {
-		System.out.println();
+		// pass
 	}
 	
 	@Override
@@ -18,8 +19,17 @@ public class SimulationDispatcher extends Dispatcher {
 		// pass
 	}
 	
+	public void computeStatistics() {
+		// TODO: later
+	}
+	
 	public void displayStats() {
-//		for (Node node : this.)
+		for (int i = 0; i < this.actors.size(); i++) {
+			if (this.actors.get(i) instanceof Node) {
+				Node node = (Node) this.actors.get(i);
+				node.displayStatistics();
+			}
+		}
 	}
 
 }
