@@ -28,7 +28,7 @@ public class Message extends Event {
 		return validationInfo.getData();
 	}
 	
-	public int getSizeInBits() {
+	public int getSizeInBytes() {
 		return 1;
 //		return header.getSize() + payload.getSize() + validationInfo.getSize();
 	}

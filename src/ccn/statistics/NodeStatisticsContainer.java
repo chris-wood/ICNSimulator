@@ -1,5 +1,12 @@
 package ccn.statistics;
 
+import ccn.message.ContentObject;
+import ccn.message.Interest;
+import ccn.message.Message;
+import ccn.message.NACK;
+import ccn.message.RIPMessage;
+import ccn.message.VirtualInterest;
+
 public class NodeStatisticsContainer {
 	
 	protected int numReceivedInterests;
@@ -9,47 +16,56 @@ public class NodeStatisticsContainer {
 	protected int numReceivedNACKs;
 	protected int numReceivedMessages;
 	
+	protected int totalMessageBytes;
+	
 	public NodeStatisticsContainer() {
 		// pass
 	}
 	
-	public void logMessage() {
+	public void logMessage(Message msg) {
 		numReceivedMessages++;
+		totalMessageBytes += msg.getSizeInBytes();
 	}
 	
-	public void logInterest() {
+	public void logInterest(Interest interest) {
 		numReceivedInterests++;
-		logMessage();
+		logMessage(interest);
 	}
 	
-	public void logContentObject() {
+	public void logContentObject(ContentObject contentObject) {
 		numReceivedContentObjects++;
-		logMessage();
+		logMessage(contentObject);
 	}
 	
-	public void logVirtualInterest() {
+	public void logVirtualInterest(VirtualInterest virtualInterest) {
 		numReceivedVirtualInterests++;
-		logMessage();
+		logMessage(virtualInterest);
 	}
 	
-	public void logRIPMessage() {
+	public void logRIPMessage(RIPMessage ripMessage) {
 		numReceivedRIPMessages++;
-		logMessage();
+		logMessage(ripMessage);
 	}
 	
-	public void logNACK() {
+	public void logNACK(NACK nack) {
 		numReceivedNACKs++;
-		logMessage();
+		logMessage(nack);
 	}
 	
 	// TODO: this could possibly take a stream as input
-	public void display() {
-		System.out.printf("Received messages = %d\n", numReceivedMessages);
-		System.out.printf("Received interests = %d (%%f)\n", numReceivedInterests, (double)numReceivedInterests / (double)numReceivedMessages);
-		System.out.printf("Received content objects = %d (%%f)\n", numReceivedContentObjects, (double)numReceivedContentObjects / (double)numReceivedMessages);
-		System.out.printf("Received virtual interests = %d (%%f)\n", numReceivedVirtualInterests, (double)numReceivedVirtualInterests / (double)numReceivedMessages);
-		System.out.printf("Received RIP messages = %d (%%f)\n", numReceivedRIPMessages, (double)numReceivedRIPMessages / (double)numReceivedMessages);
-		System.out.printf("Received NACKs = %d (%%f)\n", numReceivedNACKs, (double)numReceivedNACKs / (double)numReceivedMessages);
+	public void display(String nodeIdentity) {
+		float interestPercentage = ((float)numReceivedInterests / (float)numReceivedMessages) * 100;
+		float contentObjectPercentage = ((float)numReceivedContentObjects / (float)numReceivedMessages) * 100;
+		float virtualInterestPercentage = ((float)numReceivedVirtualInterests / (float)numReceivedMessages) * 100;
+		float ripMessagePercentage = ((float)numReceivedRIPMessages / (float)numReceivedMessages) * 100;
+		float nackPercentage = ((float)numReceivedNACKs / (float)numReceivedMessages) * 100;
+		
+		System.out.println("["+ nodeIdentity + "] Received messages = "+ numReceivedMessages);
+		System.out.println("["+ nodeIdentity + "] Received interests = "+ numReceivedInterests + " (" + interestPercentage + "%)");
+		System.out.println("["+ nodeIdentity + "] Received content objects = "+ numReceivedContentObjects + " (" + contentObjectPercentage + "%)");
+		System.out.println("["+ nodeIdentity + "] Received virtual interests = "+ numReceivedVirtualInterests + " (" + virtualInterestPercentage + "%)");
+		System.out.println("["+ nodeIdentity + "] Received RIP messages = "+ numReceivedRIPMessages + " (" + ripMessagePercentage + "%)");
+		System.out.println("["+ nodeIdentity + "] Received NACK messages = "+ numReceivedNACKs + " (" + nackPercentage + "%)");
 	}
 
 }

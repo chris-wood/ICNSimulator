@@ -65,6 +65,6 @@ public abstract class Node extends Component {
 	}
 	
 	public void displayStatistics() {
-		statTracker.display();
+		statTracker.display(identity);
 	}
 }
