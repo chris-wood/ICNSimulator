@@ -10,6 +10,7 @@ import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 import ccn.network.LinkInterface;
 import ccn.network.Point;
+import ccn.statistics.NodeStatisticsContainer;
 import ccn.util.LogLevel;
 import ccn.util.Logger;
 import dispatch.component.Component;
@@ -19,6 +20,7 @@ public abstract class Node extends Component {
 	
 	protected Point location;
 	protected List<String> interfaces;
+	protected NodeStatisticsContainer statTracker;
 	private static final Logger logger = Logger.getConsoleLogger(Node.class.getName());
 
 	public Node(String identity, Point location, List<String> interfaces) {
@@ -26,6 +28,7 @@ public abstract class Node extends Component {
 		this.location = location;
 		this.interfaces = new ArrayList<String>();
 		this.interfaces.addAll(interfaces);
+		this.statTracker = new NodeStatisticsContainer();
 		
 		for (String interfaceId : interfaces) {
 			LinkInterface linkInterface = new LinkInterface(interfaceId, Integer.MAX_VALUE); // max write throughput, for now
@@ -42,14 +45,19 @@ public abstract class Node extends Component {
 	@Override
 	protected void processInputEventFromInterface(String interfaceId, Event event, long time) {
 		if (event instanceof Interest) {
+			statTracker.logInterest();
 			processInterestFromInterface(interfaceId, (Interest) event, time);
 		} else if (event instanceof ContentObject) {
+			statTracker.logContentObject();
 			processContentObjectFromInterface(interfaceId, (ContentObject) event, time);
 		} else if (event instanceof VirtualInterest) {
+			statTracker.logVirtualInterest();
 			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) event, time);
 		} else if (event instanceof NACK) {
+			statTracker.logNACK();
 			processNACKFromInterface(interfaceId, (NACK) event, time);
 		} else if (event instanceof RIPMessage) {
+			statTracker.logRIPMessage();
 			processRIPMessageFromInterface(interfaceId, (RIPMessage) event, time);
 		} else {
 			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + event);

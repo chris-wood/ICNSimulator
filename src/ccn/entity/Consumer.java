@@ -16,6 +16,7 @@ import ccn.util.Logger;
 public class Consumer extends Node {
 	
 	protected NetworkStack stack;
+	
 	private static final Logger logger = Logger.getConsoleLogger(Consumer.class.getName());
 
 	public Consumer(String identity, Point location, List<String> interfaces) {

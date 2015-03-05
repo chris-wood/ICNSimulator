@@ -17,5 +17,9 @@ public class SimulationDispatcher extends Dispatcher {
 	public void endEpoch(long time) {
 		// pass
 	}
+	
+	public void displayStats() {
+//		for (Node node : this.)
+	}
 
 }
