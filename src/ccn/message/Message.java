@@ -28,9 +28,20 @@ public class Message extends Event {
 		return validationInfo.getData();
 	}
 	
-	public int getSizeInBytes() {
+	public int getSizeInBits() {
 		return 1;
+		
+		// TODO: this needs to match the spec
 //		return header.getSize() + payload.getSize() + validationInfo.getSize();
+	}
+	
+	public int getSizeInBytes() {
+		int bitLength = getSizeInBits();
+		if (bitLength % 8 == 0) {
+			return bitLength / 8;
+		} else {
+			return (bitLength / 8) + 1;
+		}
 	}
 	
 }

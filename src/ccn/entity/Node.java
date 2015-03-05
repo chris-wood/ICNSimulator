@@ -45,19 +45,19 @@ public abstract class Node extends Component {
 	@Override
 	protected void processInputEventFromInterface(String interfaceId, Event event, long time) {
 		if (event instanceof Interest) {
-			statTracker.logInterest();
+			statTracker.logInterest((Interest) event);
 			processInterestFromInterface(interfaceId, (Interest) event, time);
 		} else if (event instanceof ContentObject) {
-			statTracker.logContentObject();
+			statTracker.logContentObject((ContentObject) event);
 			processContentObjectFromInterface(interfaceId, (ContentObject) event, time);
 		} else if (event instanceof VirtualInterest) {
-			statTracker.logVirtualInterest();
+			statTracker.logVirtualInterest((VirtualInterest) event);
 			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) event, time);
 		} else if (event instanceof NACK) {
-			statTracker.logNACK();
+			statTracker.logNACK((NACK) event);
 			processNACKFromInterface(interfaceId, (NACK) event, time);
 		} else if (event instanceof RIPMessage) {
-			statTracker.logRIPMessage();
+			statTracker.logRIPMessage((RIPMessage) event);
 			processRIPMessageFromInterface(interfaceId, (RIPMessage) event, time);
 		} else {
 			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + event);

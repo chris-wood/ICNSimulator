@@ -24,7 +24,7 @@ public class NodeStatisticsContainer {
 	
 	public void logMessage(Message msg) {
 		numReceivedMessages++;
-		totalMessageBytes += msg.getSizeInBytes();
+		totalMessageBytes += msg.getSizeInBytes() / 8;
 	}
 	
 	public void logInterest(Interest interest) {
