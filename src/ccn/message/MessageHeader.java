@@ -17,5 +17,9 @@ public class MessageHeader {
 	public int getHopCount() {
 		return hopCount;
 	}
+	
+	public int getSizeInBits() {
+		return 8;
+	}
 
 }

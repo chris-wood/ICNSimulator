@@ -9,11 +9,13 @@ public class Message extends Event {
 	protected MessageValidationInfo validationInfo;
 	
 	public Message(String name) {
-		this.header = new MessageHeader(name, Integer.MAX_VALUE);
+		header = new MessageHeader(name, Integer.MAX_VALUE);
+		payload = new MessagePayload();
+		validationInfo = new MessageValidationInfo();
 	}
 	
 	public Message(String name, int hopCount) {
-		this.header = new MessageHeader(name, hopCount);
+		header = new MessageHeader(name, hopCount);
 	}
 	
 	public String getName() {
@@ -29,10 +31,7 @@ public class Message extends Event {
 	}
 	
 	public int getSizeInBits() {
-		return 1;
-		
-		// TODO: this needs to match the spec
-//		return header.getSize() + payload.getSize() + validationInfo.getSize();
+		return header.getSizeInBits() + payload.getSizeInBits() + validationInfo.getSizeInBits();
 	}
 	
 	public int getSizeInBytes() {
