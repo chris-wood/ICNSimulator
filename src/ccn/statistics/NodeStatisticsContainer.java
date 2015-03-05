@@ -1,5 +1,12 @@
 package ccn.statistics;
 
+import java.util.Map;
+import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
 import ccn.message.ContentObject;
 import ccn.message.Interest;
 import ccn.message.Message;
@@ -8,64 +15,73 @@ import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
 
 public class NodeStatisticsContainer {
-	
-	protected int numReceivedInterests;
-	protected int numReceivedContentObjects;
-	protected int numReceivedVirtualInterests;
-	protected int numReceivedRIPMessages;
-	protected int numReceivedNACKs;
-	protected int numReceivedMessages;
-	
-	protected int totalMessageBytes;
+
+	protected Map<String, MessageStatisticsContainer> messageContainerMap;
+	protected MessageStatisticsContainer messageContainer;
 	
 	public NodeStatisticsContainer() {
-		// pass
+		messageContainerMap = new HashMap<String, MessageStatisticsContainer>();
+		messageContainerMap.put(Interest.class.getName(), new MessageStatisticsContainer(Interest.class.getName()));
+		messageContainerMap.put(ContentObject.class.getName(), new MessageStatisticsContainer(ContentObject.class.getName()));
+		messageContainerMap.put(VirtualInterest.class.getName(), new MessageStatisticsContainer(VirtualInterest.class.getName()));
+		messageContainerMap.put(NACK.class.getName(), new MessageStatisticsContainer(NACK.class.getName()));
+		messageContainerMap.put(RIPMessage.class.getName(), new MessageStatisticsContainer(RIPMessage.class.getName()));
+		messageContainer = new MessageStatisticsContainer(Message.class.getName());
 	}
 	
 	public void logMessage(Message msg) {
-		numReceivedMessages++;
-		totalMessageBytes += msg.getSizeInBytes() / 8;
+		messageContainer.logMessage(msg);
 	}
 	
 	public void logInterest(Interest interest) {
-		numReceivedInterests++;
+		messageContainerMap.get(Interest.class.getName()).logMessage(interest);
 		logMessage(interest);
 	}
 	
 	public void logContentObject(ContentObject contentObject) {
-		numReceivedContentObjects++;
+		messageContainerMap.get(ContentObject.class.getName()).logMessage(contentObject);
 		logMessage(contentObject);
 	}
 	
 	public void logVirtualInterest(VirtualInterest virtualInterest) {
-		numReceivedVirtualInterests++;
+		messageContainerMap.get(VirtualInterest.class.getName()).logMessage(virtualInterest);
 		logMessage(virtualInterest);
 	}
 	
 	public void logRIPMessage(RIPMessage ripMessage) {
-		numReceivedRIPMessages++;
+		messageContainerMap.get(RIPMessage.class.getName()).logMessage(ripMessage);
 		logMessage(ripMessage);
 	}
 	
 	public void logNACK(NACK nack) {
-		numReceivedNACKs++;
+		messageContainerMap.get(NACK.class.getName()).logMessage(nack);
 		logMessage(nack);
 	}
 	
 	// TODO: this could possibly take a stream as input
 	public void display(String nodeIdentity) {
-		float interestPercentage = ((float)numReceivedInterests / (float)numReceivedMessages) * 100;
-		float contentObjectPercentage = ((float)numReceivedContentObjects / (float)numReceivedMessages) * 100;
-		float virtualInterestPercentage = ((float)numReceivedVirtualInterests / (float)numReceivedMessages) * 100;
-		float ripMessagePercentage = ((float)numReceivedRIPMessages / (float)numReceivedMessages) * 100;
-		float nackPercentage = ((float)numReceivedNACKs / (float)numReceivedMessages) * 100;
+		int totalNumberOfMessages = messageContainer.getTotalMessages();
+		int totalMessageBytes = messageContainer.getTotalBytes();
+		Stream<String> totalPercentages = messageContainerMap.values().stream().map(container -> container.getCountString(totalNumberOfMessages));
+		Stream<String> bytePercentages = messageContainerMap.values().stream().map(container -> container.getSizeString(totalMessageBytes));
 		
-		System.out.println("["+ nodeIdentity + "] Received messages = "+ numReceivedMessages);
-		System.out.println("["+ nodeIdentity + "] Received interests = "+ numReceivedInterests + " (" + interestPercentage + "%)");
-		System.out.println("["+ nodeIdentity + "] Received content objects = "+ numReceivedContentObjects + " (" + contentObjectPercentage + "%)");
-		System.out.println("["+ nodeIdentity + "] Received virtual interests = "+ numReceivedVirtualInterests + " (" + virtualInterestPercentage + "%)");
-		System.out.println("["+ nodeIdentity + "] Received RIP messages = "+ numReceivedRIPMessages + " (" + ripMessagePercentage + "%)");
-		System.out.println("["+ nodeIdentity + "] Received NACK messages = "+ numReceivedNACKs + " (" + nackPercentage + "%)");
+		totalPercentages.forEach(new Consumer<String>() {
+
+			@Override
+			public void accept(String t) {
+				System.out.println("["+ nodeIdentity + "] " + t);
+			}
+
+		});
+		
+		bytePercentages.forEach(new Consumer<String>() {
+
+			@Override
+			public void accept(String t) {
+				System.out.println("["+ nodeIdentity + "] " + t);
+			}
+
+		});
 	}
 
 }

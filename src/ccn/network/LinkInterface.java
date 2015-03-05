@@ -12,6 +12,11 @@ public class LinkInterface extends ChannelInterface {
 		super(interfaceIdentity);
 		writeBitsPerEpoch = interfaceWriteBitsPerEpoch;
 	}
+	
+	public void setDuplexConnection(Link link) {
+		setOutputChannel(link);
+		setInputChannel(link);
+	}
 
 	@Override
 	public void write(Event event) {

@@ -14,8 +14,6 @@ import ccn.entity.Producer;
 import ccn.entity.Router;
 import ccn.util.json.JSONArray;
 import ccn.util.json.JSONObject;
-import dispatch.channel.Channel;
-import dispatch.channel.ChannelInterface;
 
 public class TopologyParser {
 	
@@ -114,11 +112,8 @@ public class TopologyParser {
 			Link link = linkMap.get(channelId);
 			
 			// tie them up
-//			sourceChannel.connect(destChannel);
-			sourceChannel.setOutputChannel(link);
-			sourceChannel.setInputChannel(link);
-			destChannel.setInputChannel(link);
-			destChannel.setOutputChannel(link);
+			sourceChannel.setDuplexConnection(link);
+			destChannel.setDuplexConnection(link);
 		}
 		
 		return topology;
