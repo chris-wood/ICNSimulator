@@ -12,57 +12,55 @@ import ccn.message.Interest;
 import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
-import ccn.util.Logger;
 
 public class NetworkStack {
 	
 	protected ContentStore contentStore;
-	protected ForwardingInformationBase fib;
-	protected PendingInterestTable pit;
-	protected Node node;
-	private static final Logger logger = Logger.getConsoleLogger(NetworkStack.class.getName());
+	protected ForwardingInformationBase internalFib;
+	protected PendingInterestTable internalPit;
+	protected Node parentNode;
 	
 	private NetworkStack(Node node, ContentStore cs, ForwardingInformationBase fib, PendingInterestTable pit) {
-		this.node = node;
-		this.contentStore = cs;
-		this.fib = fib;
-		this.pit = pit;
+		parentNode = node;
+		contentStore = cs;
+		internalFib = fib;
+		internalPit = pit;
 	}
 	
 	public void processNACK(String interfaceId, NACK nack) {
 		nack.setProcessed();
-		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(nack.getName());
+		List<String> downstreamInterfaces = internalPit.clearEntryAndGetEntries(nack.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
 			NACK newNack = new NACK(nack.getName(), nack.getError());
-			node.send(downstreamInterface, newNack);
+			parentNode.send(downstreamInterface, newNack);
 		}
 	}
 	
 	public void processRIPMessage(String interfaceId, RIPMessage routeMessage) {
 		routeMessage.setProcessed();
 		RIPMessage newMessage = new RIPMessage(routeMessage.getName(), routeMessage.getPrefix());
-		fib.installRoute(routeMessage.getPrefix(), interfaceId);
-		node.broadcast(newMessage, interfaceId);
+		internalFib.installRoute(routeMessage.getPrefix(), interfaceId);
+		parentNode.broadcast(newMessage, interfaceId);
 	}
 	
 	public boolean sendInterest(Interest interest) {
-		List<String> outputInterfaces = fib.getRoutes(interest.getName());
+		List<String> outputInterfaces = internalFib.getRoutes(interest.getName());
 		if (outputInterfaces.isEmpty()) {
 			return false;
 		} else {
 			for (String outputInterface : outputInterfaces) {
 				Interest newInterest = new Interest(interest.getName());
-				node.send(outputInterface, newInterest);
+				parentNode.send(outputInterface, newInterest);
 			}
 			return true;
 		}
 	}
 	
 	public void sendVirtualInterest(VirtualInterest vint) {
-		List<String> outputInterfaces = fib.getRoutes(vint.getName());
+		List<String> outputInterfaces = internalFib.getRoutes(vint.getName());
 		for (String outputInterface : outputInterfaces) {
 			VirtualInterest newInterest = new VirtualInterest(vint.getName());
-			node.send(outputInterface, newInterest);
+			parentNode.send(outputInterface, newInterest);
 		}
 	}
 	
@@ -70,7 +68,7 @@ public class NetworkStack {
 		boolean success = sendInterest(interest);
 		if (!success) {
 			NACK nack = new NACK(interest.getName(), "Route to " + interest.getName() + " not found.");
-			node.send(interfaceId, nack);
+			parentNode.send(interfaceId, nack);
 		}
 	}
 	
@@ -78,14 +76,14 @@ public class NetworkStack {
 		interest.setProcessed();
 		if (contentStore.hasContent(interest.getName())) {
 			ContentObject cachedMessage = contentStore.retrieveContentByName(interest.getName());
-			node.send(interfaceId, cachedMessage);
+			parentNode.send(interfaceId, cachedMessage);
 			
 			VirtualInterest virtualInterest = new VirtualInterest(interest.getName());
 			sendVirtualInterest(virtualInterest);
-		} else if (pit.isInterestPresent(interest.getName())) {
-			pit.appendInterest(interest.getName(), interfaceId, interest);
+		} else if (internalPit.isInterestPresent(interest.getName())) {
+			internalPit.appendInterest(interest.getName(), interfaceId, interest);
 		} else {
-			pit.insertInterest(interest.getName(), interfaceId, interest);
+			internalPit.insertInterest(interest.getName(), interfaceId, interest);
 			sendInterestWithNACK(interfaceId, interest);
 		}
 	}
@@ -93,10 +91,10 @@ public class NetworkStack {
 	public void processContentObject(String interfaceId, ContentObject content) {
 		content.setProcessed();
 		contentStore.insertContent(content.getName(), content);
-		List<String> downstreamInterfaces = pit.clearEntryAndGetEntries(content.getName());
+		List<String> downstreamInterfaces = internalPit.clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
 			ContentObject newContentObject = new ContentObject(content.getName(), content.getPayload());
-			node.send(downstreamInterface, newContentObject);
+			parentNode.send(downstreamInterface, newContentObject);
 		}
 	}
 	
