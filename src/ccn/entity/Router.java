@@ -18,9 +18,9 @@ public class Router extends Node {
 	protected NetworkStack stack;
 	private static final Logger logger = Logger.getConsoleLogger(Router.class.getName());
 
-	public Router(String identity, Point location, List<String> interfaces) {
+	public Router(String identity, Point location, List<String> interfaces, int capacity) {
 		super(identity, location, interfaces);
-		stack = RouterStackFactory.buildDefault(this);
+		stack = RouterStackFactory.buildDefault(this, capacity);
 	}
 
 	@Override

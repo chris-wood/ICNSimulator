@@ -3,8 +3,6 @@ package ccn.statistics;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.function.Consumer;
-import java.util.function.DoubleConsumer;
-import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import ccn.message.ContentObject;

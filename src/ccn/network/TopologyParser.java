@@ -74,7 +74,8 @@ public class TopologyParser {
 				
 				node = new Producer(nodeId, location, interfaces, prefixes);
 			} else if (nodeType.equals("router")) {
-				node = new Router(nodeId, location, interfaces);
+				int cacheCapacity = nodeObject.getInt("cache_capacity");
+				node = new Router(nodeId, location, interfaces, cacheCapacity);
 			} else {
 				throw new Exception("Invalid node type: " + nodeType + ", expecting `consumer`, `router`, or `producer`");
 			}
