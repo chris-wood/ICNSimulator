@@ -26,7 +26,7 @@ public class Consumer extends Node {
 
 	@Override
 	protected void runComponent(long time) {
-		Interest interest = new Interest("lci:/some/thing");
+		Interest interest = new Interest("lci:/test");
 		logger.log(LogLevel.LogLevel_INFO, time, "Consumer issuing interest " + interest);
 		stack.sendInterest(interest);
 	}

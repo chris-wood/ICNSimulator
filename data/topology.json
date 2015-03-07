@@ -1,0 +1,84 @@
+{
+    "nodes": [
+        {
+            "node_id": "node1",
+            "node_type": "consumer",
+            "x-coord": "0",
+            "y-coord": "0",
+            "interfaces": [
+                { "interface_id": "node1-interface1" }
+            ]
+        },
+        {
+            "node_id": "node2",
+            "node_type": "router",
+            "x-coord": "1",
+            "y-coord": "2",
+            "cache_capacity": "1000000000",
+            "interfaces": [
+                { "interface_id": "node2-interface1" },
+                { "interface_id": "node2-interface2" }
+            ]
+        },
+        {
+            "node_id": "node3",
+            "node_type": "router",
+            "x-coord": "1",
+            "y-coord": "2",
+            "cache_capacity": "1000000000",
+            "interfaces": [
+                { "interface_id": "node3-interface1" },
+                { "interface_id": "node3-interface2" }
+            ]
+        },
+        {
+            "node_id": "node4",
+            "node_type": "producer",
+            "x-coord": "2",
+            "y-coord": "2",
+            "interfaces": [
+                { "interface_id": "node4-interface1" }
+            ],
+            "prefixes" : [
+            	"lci:/"
+            ]
+        }
+    ],
+    "channels" : [
+    	{
+    		"channel_id" : "link1",
+    		"data_rate": "100",
+    	},
+    	{
+    		"channel_id" : "link2",
+    		"data_rate": "100",
+    	},
+    	{
+    		"channel_id" : "link3",
+    		"data_rate": "100",
+    	}
+    ],
+    "connections": [
+        {
+            "source_id": "node1",
+            "source_interface": "node1-interface1",
+            "destination_id": "node2",
+            "destination_interface": "node2-interface1",
+            "channel_id" : "link1"
+        },
+        {
+            "source_id": "node2",
+            "source_interface": "node2-interface2",
+            "destination_id": "node3",
+            "destination_interface": "node3-interface1",
+            "channel_id" : "link2"
+        },
+        {
+            "source_id": "node3",
+            "source_interface": "node3-interface2",
+            "destination_id": "node4",
+            "destination_interface": "node4-interface1",
+            "channel_id" : "link3"
+        }
+    ]
+}

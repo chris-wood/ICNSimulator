@@ -50,8 +50,9 @@ public class TopologyParser {
 			
 			String nodeId = nodeObject.getString("node_id");
 			String nodeType = nodeObject.getString("node_type");
-			int xCoordinate = nodeObject.getInt("x-coord");
-			int yCoordinate = nodeObject.getInt("y-coord");
+			JSONObject pointObject = nodeObject.getJSONObject("point");
+			int xCoordinate = pointObject.getInt("x-coord");
+			int yCoordinate = pointObject.getInt("y-coord");
 			
 			JSONArray interfaceContainer = nodeObject.getJSONArray("interfaces");
 			List<String> interfaces = new ArrayList<String>();

@@ -1,84 +1,131 @@
 {
     "nodes": [
         {
-            "node_id": "node1",
-            "node_type": "consumer",
-            "x-coord": "0",
-            "y-coord": "0",
+            "node_id": "consumer:0",
+            "point": {
+                "x-coord": "0",
+                "y-coord": "0"
+            },
             "interfaces": [
-                { "interface_id": "node1-interface1" }
-            ]
-        },
-        {
-            "node_id": "node2",
-            "node_type": "router",
-            "x-coord": "1",
-            "y-coord": "2",
-            "cache_capacity": "1000000000",
-            "interfaces": [
-                { "interface_id": "node2-interface1" },
-                { "interface_id": "node2-interface2" }
-            ]
-        },
-        {
-            "node_id": "node3",
-            "node_type": "router",
-            "x-coord": "1",
-            "y-coord": "2",
-            "cache_capacity": "1000000000",
-            "interfaces": [
-                { "interface_id": "node3-interface1" },
-                { "interface_id": "node3-interface2" }
-            ]
-        },
-        {
-            "node_id": "node4",
-            "node_type": "producer",
-            "x-coord": "2",
-            "y-coord": "2",
-            "interfaces": [
-                { "interface_id": "node4-interface1" }
+                {
+                    "interface_id": "interface:0#1"
+                }
             ],
-            "prefixes" : [
-            	"lci:/"
+            "node_type": "consumer"
+        },
+        {
+            "node_id": "router:1",
+            "point": {
+                "x-coord": "0",
+                "y-coord": "0"
+            },
+            "interfaces": [
+                {
+                    "interface_id": "interface:1#0"
+                },
+                {
+                    "interface_id": "interface:1#2"
+                }
+            ],
+            "node_type": "router",
+            "cache_capacity": "1000000"
+        },
+        {
+            "node_id": "producer:2",
+            "point": {
+                "x-coord": "0",
+                "y-coord": "0"
+            },
+            "interfaces": [
+                {
+                    "interface_id": "interface:2#1"
+                },
+                {
+                    "interface_id": "interface:2#3"
+                }
+            ],
+            "node_type": "producer",
+            "prefixes": [
+                "lci:/test"
             ]
+        },
+        {
+            "node_id": "router:3",
+            "point": {
+                "x-coord": "0",
+                "y-coord": "0"
+            },
+            "interfaces": [
+                {
+                    "interface_id": "interface:3#2"
+                },
+                {
+                    "interface_id": "interface:3#4"
+                }
+            ],
+            "node_type": "router",
+            "cache_capacity": "1000000"
+        },
+        {
+            "node_id": "consumer:4",
+            "point": {
+                "x-coord": "0",
+                "y-coord": "0"
+            },
+            "interfaces": [
+                {
+                    "interface_id": "interface:4#3"
+                }
+            ],
+            "node_type": "consumer"
         }
     ],
-    "channels" : [
-    	{
-    		"channel_id" : "link1",
-    		"data_rate": "100",
-    	},
-    	{
-    		"channel_id" : "link2",
-    		"data_rate": "100",
-    	},
-    	{
-    		"channel_id" : "link3",
-    		"data_rate": "100",
-    	}
+    "channels": [
+        {
+            "channel_id": "channel:0-1",
+            "data_rate": "100"
+        },
+        {
+            "channel_id": "channel:1-2",
+            "data_rate": "100"
+        },
+        {
+            "channel_id": "channel:2-3",
+            "data_rate": "100"
+        },
+        {
+            "channel_id": "channel:3-4",
+            "data_rate": "100"
+        }
     ],
     "connections": [
         {
-            "source_id": "node1",
-            "source_interface": "node1-interface1",
-            "destination_id": "node2",
-            "destination_interface": "node2-interface1",
-            "channel_id" : "link1"
+            "source_id": "consumer:0",
+            "source_interface": "interface:0#1",
+            "destination_id": "router:1",
+            "destination_interface": "interface:1#0",
+            "channel_id": "channel:0-1"
         },
         {
-            "source_id": "node2",
-            "source_interface": "node2-interface2",
-            "destination_id": "node3",
-            "destination_interface": "node3-interface1",
-            "channel_id" : "link2"
+            "source_id": "router:1",
+            "source_interface": "interface:1#2",
+            "destination_id": "producer:2",
+            "destination_interface": "interface:2#1",
+            "channel_id": "channel:1-2"
         },
         {
-            "source_id": "node3",
-            "source_interface": "node3-interface2",
-            "destination_id": "node4",
-            "destination_interface": "node4-interface1",
-            "channel_id" : "link3"
+            "source_id": "producer:2",
+            "source_interface": "interface:2#3",
+            "destination_id": "router:3",
+            "destination_interface": "interface:3#2",
+            "channel_id": "channel:2-3"
+        },
+        {
+            "source_id": "router:3",
+            "source_interface": "interface:3#4",
+            "destination_id": "consumer:4",
+            "destination_interface": "interface:4#3",
+            "channel_id": "channel:3-4"
         }
     ]
 }
