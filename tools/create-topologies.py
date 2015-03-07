@@ -7,7 +7,9 @@ pathLengths = range(5,20)
 for length in pathLengths:
 	pathGraph = createPathGraph(length)
 	if pathGraph != None:
-		print >> sys.stdout, graphToJSON(pathGraph)
+		fout = open("path_%d.json" % length, "w")
+		fout.write(graphToJSON(pathGraph))
+		fout.close()
 
 # Trees
 treeFanouts = range(2,8)
@@ -16,7 +18,9 @@ for fanout in treeFanouts:
 	for height in treeHeights:
 		treeGraph = createTreeGraph(fanout, 2, height)
 		if treeGraph != None:
-			print >> sys.stdout, graphToJSON(treeGraph)
+			fout = open("tree_%d_%d.json" % (fanout, height), "w")
+			fout.write(graphToJSON(treeGraph))
+			fout.close()
 
 # Meshes
 numberOfProducers = range(2, 10)
@@ -27,6 +31,8 @@ for producerCount in numberOfProducers:
 		for routerCount in numberOfRouters:
 			meshGraph = createRandomGraph(consumerCount, producerCount, routerCount)
 			if meshGraph != None:
-				print >> sys.stdout, graphToJSON(meshGraph)
+				fout = open("mesh_%d_%d_%d.json" % (consumerCount, producerCount, routerCount), "w")
+				fout.write(graphToJSON(meshGraph))
+				fout.close()
 
 
