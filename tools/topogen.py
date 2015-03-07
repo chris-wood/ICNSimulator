@@ -159,10 +159,11 @@ class Tree(Graph):
 		self.routerNodes.extend(nonleaves)
 
 class Network:
-	def __init__(self):
+	def __init__(self, capacityDistribution=[1000000]):
 		self.connections = []
 		self.channels = []
 		self.nodes = {}
+		self.capacityDistribution = capacityDistribution
 
 	def addConnection(self, conn):
 		self.connections.append(conn)
@@ -204,7 +205,7 @@ class Network:
 			identity = "router:" + str(index)
 			point = Point(0,0)
 			interfaces = self.createInterfaceMapForNode(index, graph.neighbors(index))
-			router = Router(identity, index, point, interfaces)
+			router = Router(identity, index, point, interfaces, random.choice(self.capacityDistribution))
 			self.nodes[index] = router
 
 	def createConnections(self, graph):
@@ -315,7 +316,7 @@ class Router(Node):
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
-		capacity = "\"cache_capacity\" : \"" + str(capacity) + "\""
+		capacity = "\"cache_capacity\" : \"" + str(self.capacity) + "\""
 		return "{ %s }" % ",".join([parentJSON, nodeType, capacity])
 
 class Producer(Node):
@@ -376,7 +377,7 @@ def createTreeGraph(k, minLength, maxLength):
 	return tree
 
 # TODO: need to create routers with a finite cache capacity -> do that here
-def createRandomGraph(c, p, r, capacityDistribution=[1000000,1000000000]):
+def createRandomGraph(c, p, r):
 	G = Graph()
 
 	for i in range(c):
