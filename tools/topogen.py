@@ -407,6 +407,10 @@ def createGraph(args):
 	else:	
 		return createBasicGraph()
 
+def graphToJSON(graph):
+	network = buildNetworkFromGraph(graph)
+	return network.toJSON()
+
 def main(args):
 	graph = createGraph(args)
 	network = buildNetworkFromGraph(graph)
