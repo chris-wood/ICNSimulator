@@ -308,13 +308,15 @@ class Consumer(Node):
 		return "{ %s }" % ",".join([parentJSON, nodeType])
 
 class Router(Node):
-	def __init__(self, identifier, index, point, interfaceMap):
+	def __init__(self, identifier, index, point, interfaceMap, capacity):
 		super(Router, self).__init__(identifier, index, point, interfaceMap)
+		self.capacity = capacity
 
 	def toJSON(self):
 		parentJSON = ",".join(self.getCommonJSON())
 		nodeType = "\"node_type\" : \"%s\"" % type(self).__name__.lower()
-		return "{ %s }" % ",".join([parentJSON, nodeType])
+		capacity = "\"cache_capacity\" : \"" + str(capacity) + "\""
+		return "{ %s }" % ",".join([parentJSON, nodeType, capacity])
 
 class Producer(Node):
 	def __init__(self, identifier, index, point, interfaceMap, prefixes):
@@ -373,7 +375,8 @@ def createTreeGraph(k, minLength, maxLength):
 
 	return tree
 
-def createRandomGraph(c, p, r):
+# TODO: need to create routers with a finite cache capacity -> do that here
+def createRandomGraph(c, p, r, capacityDistribution=[1000000,1000000000]):
 	G = Graph()
 
 	for i in range(c):

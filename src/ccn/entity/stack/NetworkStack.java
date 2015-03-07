@@ -104,10 +104,10 @@ public class NetworkStack {
 	}
 	
 	public static NetworkStack buildDefaultNetworkStack(Node node) {
-		return buildDefaultNetworkStackWithFiniteCacheCapacity(node, Integer.MAX_VALUE);
+		return buildDefaultNetworkStackWithFiniteCacheCapacity(node, Long.MAX_VALUE);
 	}
 	
-	public static NetworkStack buildDefaultNetworkStackWithFiniteCacheCapacity(Node node, int capacity) {
+	public static NetworkStack buildDefaultNetworkStackWithFiniteCacheCapacity(Node node, long capacity) {
 		ContentStore cs = new ContentStore(CachePolicy.CachePolicy_LRU, capacity);
 		ForwardingInformationBase fib = new ForwardingInformationBase();
 		PendingInterestTable pit = new PendingInterestTable(); 

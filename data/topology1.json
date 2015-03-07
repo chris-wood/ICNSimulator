@@ -14,6 +14,7 @@
             "node_type": "router",
             "x-coord": "1",
             "y-coord": "2",
+            "cache_capacity": "1000000000",
             "interfaces": [
                 { "interface_id": "node2-interface1" },
                 { "interface_id": "node2-interface2" }
@@ -24,6 +25,7 @@
             "node_type": "router",
             "x-coord": "1",
             "y-coord": "2",
+            "cache_capacity": "1000000000",
             "interfaces": [
                 { "interface_id": "node3-interface1" },
                 { "interface_id": "node3-interface2" }
