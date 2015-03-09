@@ -9,7 +9,6 @@ import ccn.entity.Node;
 import ccn.network.Link;
 import ccn.network.Topology;
 import ccn.network.TopologyParser;
-import dispatch.Dispatcher;
 
 public class Simulator extends Thread {
 	
@@ -35,11 +34,11 @@ public class Simulator extends Thread {
 				dispatcher.addActor(link);
 			}
 			
-			System.err.println("Starting dispatcher");
 			dispatcher.run();
-			System.err.println("Displaying statistics");
-			dispatcher.displayStats();
-			System.err.println("Ending dispatcher");
+			List<String> stats = dispatcher.generateCSVStatistics();
+			for (String stat : stats) {
+				System.out.println(stat);
+			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}

@@ -25,12 +25,11 @@ public class MessageStatisticsContainer {
 		return totalReceivedMessages;
 	}
 	
-	public String getCountString(int total) {
-		return "MESSAGE COUNT " + messageTypeName + " " + totalReceivedMessages + " (" + ((float) totalReceivedMessages / (float) total * 100) + "%)";
-	}
-	
-	public String getSizeString(int total) {
-		return "MESSAGE SIZE " + messageTypeName + " " + totalAccumulatedBytes + " (" + ((float) totalAccumulatedBytes / (float) total * 100) + "%)";
+	public String getCSVString(int totalCount, int totalSize) {
+		String csv = "count," + messageTypeName + ",";
+		csv = csv + totalReceivedMessages + "," + ((float) totalReceivedMessages / (float) totalCount * 100);
+		csv = csv + totalAccumulatedBytes + "," + ((float) totalAccumulatedBytes / (float) totalSize * 100);
+		return csv;
 	}
 	
 	public String getTimeString(int total) {

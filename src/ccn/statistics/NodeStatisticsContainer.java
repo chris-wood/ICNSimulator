@@ -1,8 +1,10 @@
 package ccn.statistics;
 
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ccn.message.ContentObject;
@@ -56,30 +58,10 @@ public class NodeStatisticsContainer {
 		logMessage(nack);
 	}
 	
-	// TODO: this could possibly take a stream as input
-	public void display(String nodeIdentity) {
+	public Stream<String> generateCSVStatisticsStream() {
 		int totalNumberOfMessages = messageContainer.getTotalMessages();
 		int totalMessageBytes = messageContainer.getTotalBytes();
-		Stream<String> totalPercentages = messageContainerMap.values().stream().map(container -> container.getCountString(totalNumberOfMessages));
-		Stream<String> bytePercentages = messageContainerMap.values().stream().map(container -> container.getSizeString(totalMessageBytes));
-		
-		totalPercentages.forEach(new Consumer<String>() {
-
-			@Override
-			public void accept(String t) {
-				System.out.println("["+ nodeIdentity + "] " + t);
-			}
-
-		});
-		
-		bytePercentages.forEach(new Consumer<String>() {
-
-			@Override
-			public void accept(String t) {
-				System.out.println("["+ nodeIdentity + "] " + t);
-			}
-
-		});
+		Stream<String> statisticStream = messageContainerMap.values().stream().map(container -> container.getCSVString(totalNumberOfMessages, totalMessageBytes));	
+		return statisticStream;
 	}
-
 }

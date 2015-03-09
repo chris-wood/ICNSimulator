@@ -2,6 +2,7 @@ package ccn.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import ccn.message.ContentObject;
 import ccn.message.Interest;
@@ -64,7 +65,8 @@ public abstract class Node extends Component {
 		}
 	}
 	
-	public void displayStatistics() {
-		statTracker.display(identity);
+	public Stream<String> generateCSVStatisticsStream() {
+		Stream<String> nodeStream = statTracker.generateCSVStatisticsStream().map(string -> identity + "," + string);
+		return nodeStream;
 	}
 }
