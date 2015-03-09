@@ -343,16 +343,11 @@ def intersect(a, b):
 
 def createPathGraph(l):
 	G = Graph()
-	for i in range(0, l):
-		G.add_node(i)
-	for i in range(0, l - 1):
-		G.add_edge(i, i + 1)
 
-	try:
-		G.partition()
-	except Exception as e:
-		print str(e)
-		return None
+	G.add_consumer(0)
+	for i in range(1, l - 1):
+		G.add_router(i)
+	G.add_producer(l - 1)
 
 	return G
 

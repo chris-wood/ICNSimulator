@@ -3,6 +3,8 @@
 from topogen import *
 import pickle
 
+# TODO: read in parameters from a configuration file
+
 # Paths
 pathLengths = range(5,20)
 for length in pathLengths:

@@ -16,6 +16,7 @@ public class MessageStatisticsContainer {
 	public void logMessage(Message msg, long time) {
 		totalReceivedMessages++;
 		totalAccumulatedBytes += msg.getSizeInBytes();
+		totalTimeSpentProcessing += time;
 	}
 	
 	public int getTotalBytes() {
