@@ -17,13 +17,8 @@ for length in pathLengths:
 		fout.write(json)
 		fout.close()
 
-		fout = open(prefix + ".graph.pickle", "w")
-		fout.write(pickle.dumps(pathGraph))
-		fout.close()
-
-		fout = open(prefix + ".network.pickle", "w")
-		fout.write(pickle.dumps(network))
-		fout.close()
+		pickle.dump(pathGraph, open(prefix + ".graph.pickle", "wb"))
+		pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
 # Trees
 treeFanouts = range(2,8)
@@ -39,13 +34,8 @@ for fanout in treeFanouts:
 			fout.write(json)
 			fout.close()
 
-			fout = open(prefix + ".graph.pickle", "w")
-			fout.write(pickle.dumps(treeGraph))
-			fout.close()
-
-			fout = open(prefix + ".network.pickle", "w")
-			fout.write(pickle.dumps(network))
-			fout.close()
+			pickle.dump(treeGraph, open(prefix + ".graph.pickle", "wb"))
+			pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
 # Meshes
 numberOfProducers = range(2, 10)
@@ -63,10 +53,5 @@ for producerCount in numberOfProducers:
 				fout.write(json)
 				fout.close()
 
-				fout = open(prefix + ".graph.pickle", "w")
-				fout.write(pickle.dumps(meshGraph))
-				fout.close()
-
-				fout = open(prefix + ".network.pickle", "w")
-				fout.write(pickle.dumps(network))
-				fout.close()
+				pickle.dump(meshGraph, open(prefix + ".graph.pickle", "wb"))
+				pickle.dump(network, open(prefix + ".network.pickle", "wb"))

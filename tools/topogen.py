@@ -32,8 +32,8 @@ class Graph(object):
 		self.routerNodes = []
 		self.producerNodes = []
 
-	def distanceBetweenNodes(self, source, dest):
-		return None
+	def distanceBetweenNodes(self, src, dest):
+		return len(nx.shortest_path(self.graph, source = src, target = dest)) - 1 
 
 	def getGraph(self):
 		return self.graph

@@ -6,14 +6,15 @@ import csv
 from topogen import *
 
 def computeFileNames(prefix):
-	return {"csv": prefix + ".csv", "pickle": prefix + ".pickle"}
+	return {"csv": prefix + ".csv", "network": prefix + ".network.pickle", "graph": prefix + ".graph.pickle"}
 
 def processStatesFromFile(fileName):
 	fileNames = computeFileNames(fileName)
-	csv = fopen(fileNames["csv"], "rb")
-	network = pickle.load(fileNames["pickle"])
+	csv = open(fileNames["csv"], "rb")
+	graph = pickle.load(open(fileNames["graph"], "rb"))
 
-	# TODO: mangle the CSV here
+	# # TODO: mangle the CSV here
+	# print graph.distanceBetweenNodes(int("0"), int("4"))
 
 
 def showUsage():
