@@ -1,10 +1,7 @@
 package ccn.statistics;
 
-import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import ccn.message.ContentObject;
@@ -29,39 +26,40 @@ public class NodeStatisticsContainer {
 		messageContainer = new MessageStatisticsContainer(Message.class.getName());
 	}
 	
-	public void logMessage(Message msg) {
-		messageContainer.logMessage(msg);
+	public void logMessage(Message msg, long time) {
+		messageContainer.logMessage(msg, time);
 	}
 	
-	public void logInterest(Interest interest) {
-		messageContainerMap.get(Interest.class.getName()).logMessage(interest);
-		logMessage(interest);
+	public void logInterest(Interest interest, long time) {
+		messageContainerMap.get(Interest.class.getName()).logMessage(interest, time);
+		logMessage(interest, time);
 	}
 	
-	public void logContentObject(ContentObject contentObject) {
-		messageContainerMap.get(ContentObject.class.getName()).logMessage(contentObject);
-		logMessage(contentObject);
+	public void logContentObject(ContentObject contentObject, long time) {
+		messageContainerMap.get(ContentObject.class.getName()).logMessage(contentObject, time);
+		logMessage(contentObject, time);
 	}
 	
-	public void logVirtualInterest(VirtualInterest virtualInterest) {
-		messageContainerMap.get(VirtualInterest.class.getName()).logMessage(virtualInterest);
-		logMessage(virtualInterest);
+	public void logVirtualInterest(VirtualInterest virtualInterest, long time) {
+		messageContainerMap.get(VirtualInterest.class.getName()).logMessage(virtualInterest, time);
+		logMessage(virtualInterest, time);
 	}
 	
-	public void logRIPMessage(RIPMessage ripMessage) {
-		messageContainerMap.get(RIPMessage.class.getName()).logMessage(ripMessage);
-		logMessage(ripMessage);
+	public void logRIPMessage(RIPMessage ripMessage, long time) {
+		messageContainerMap.get(RIPMessage.class.getName()).logMessage(ripMessage, time);
+		logMessage(ripMessage, time);
 	}
 	
-	public void logNACK(NACK nack) {
-		messageContainerMap.get(NACK.class.getName()).logMessage(nack);
-		logMessage(nack);
+	public void logNACK(NACK nack, long time) {
+		messageContainerMap.get(NACK.class.getName()).logMessage(nack, time);
+		logMessage(nack, time);
 	}
 	
 	public Stream<String> generateCSVStatisticsStream() {
 		int totalNumberOfMessages = messageContainer.getTotalMessages();
 		int totalMessageBytes = messageContainer.getTotalBytes();
-		Stream<String> statisticStream = messageContainerMap.values().stream().map(container -> container.getCSVString(totalNumberOfMessages, totalMessageBytes));	
+		long totalProcessingTime = messageContainer.getTotalTimeSpentProcessing();
+		Stream<String> statisticStream = messageContainerMap.values().stream().map(container -> container.getCSVString(totalNumberOfMessages, totalMessageBytes, totalProcessingTime));	
 		return statisticStream;
 	}
 }

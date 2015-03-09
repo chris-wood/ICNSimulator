@@ -1,11 +1,14 @@
 package ccn.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import ccn.message.ContentObject;
 import ccn.message.Interest;
+import ccn.message.Message;
 import ccn.message.NACK;
 import ccn.message.RIPMessage;
 import ccn.message.VirtualInterest;
@@ -22,18 +25,48 @@ public abstract class Node extends Component {
 	protected Point location;
 	protected List<String> interfaces;
 	protected NodeStatisticsContainer statTracker;
+	private Map<String, Long> pendingMessageTable;
 	private static final Logger logger = Logger.getConsoleLogger(Node.class.getName());
 
-	public Node(String identity, Point location, List<String> interfaces) {
+	public Node(String identity, Point nodeLocation, List<String> interfaces) {
 		super(identity);
-		this.location = location;
-		this.interfaces = new ArrayList<String>();
-		this.interfaces.addAll(interfaces);
-		this.statTracker = new NodeStatisticsContainer();
+		location = nodeLocation;
+		interfaces = new ArrayList<String>();
+		interfaces.addAll(interfaces);
+		statTracker = new NodeStatisticsContainer();
+		pendingMessageTable = new HashMap<String, Long>();
 		
 		for (String interfaceId : interfaces) {
 			LinkInterface linkInterface = new LinkInterface(interfaceId, Integer.MAX_VALUE); // max write throughput, for now
 			this.addChannelInterface(interfaceId, linkInterface);
+		}
+	}
+	
+	protected void startMessageProcessing(Message msg, long time) {
+		pendingMessageTable.put(msg.toString(), time);
+	}
+	
+	protected void finishMessageProcessing(Message msg, long time) throws Exception {
+		String eventKey = msg.toString();
+		if (!(pendingMessageTable.containsKey(eventKey))) {
+			throw new Exception("Error: event processing never started for " + eventKey);
+		}
+		long processingTime = time - pendingMessageTable.get(eventKey);
+		pendingMessageTable.remove(eventKey);
+		finalizeMessageProcessing(msg, processingTime);
+	}
+	
+	private void finalizeMessageProcessing(Message msg, long processingTime) throws Exception {
+		if (msg instanceof Interest) {
+			statTracker.logInterest((Interest) msg, processingTime);
+		} else if (msg instanceof ContentObject) {
+			statTracker.logContentObject((ContentObject) msg, processingTime);
+		} else if (msg instanceof VirtualInterest) {
+			statTracker.logVirtualInterest((VirtualInterest) msg, processingTime);
+		} else if (msg instanceof NACK) {
+			statTracker.logNACK((NACK) msg, processingTime);
+		} else if (msg instanceof RIPMessage) {
+			statTracker.logRIPMessage((RIPMessage) msg, processingTime);
 		}
 	}
 	
@@ -42,27 +75,26 @@ public abstract class Node extends Component {
 	protected abstract void processInterestFromInterface(String interfaceId, Interest interest, long time);
 	protected abstract void processVirtualInterestFromInterface(String interfaceId, VirtualInterest interest, long time);
 	protected abstract void processContentObjectFromInterface(String interfaceId, ContentObject content, long time);
+	
+	private void processInputMessageFromInterface(String interfaceId, Message msg, long time) {
+		if (msg instanceof Interest) {
+			processInterestFromInterface(interfaceId, (Interest) msg, time);
+		} else if (msg instanceof ContentObject) {
+			processContentObjectFromInterface(interfaceId, (ContentObject) msg, time);
+		} else if (msg instanceof VirtualInterest) {
+			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) msg, time);
+		} else if (msg instanceof NACK) {
+			processNACKFromInterface(interfaceId, (NACK) msg, time);
+		} else if (msg instanceof RIPMessage) {
+			processRIPMessageFromInterface(interfaceId, (RIPMessage) msg, time);
+		} else {
+			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + msg);
+		}
+	}
 
 	@Override
 	protected void processInputEventFromInterface(String interfaceId, Event event, long time) {
-		if (event instanceof Interest) {
-			statTracker.logInterest((Interest) event);
-			processInterestFromInterface(interfaceId, (Interest) event, time);
-		} else if (event instanceof ContentObject) {
-			statTracker.logContentObject((ContentObject) event);
-			processContentObjectFromInterface(interfaceId, (ContentObject) event, time);
-		} else if (event instanceof VirtualInterest) {
-			statTracker.logVirtualInterest((VirtualInterest) event);
-			processVirtualInterestFromInterface(interfaceId, (VirtualInterest) event, time);
-		} else if (event instanceof NACK) {
-			statTracker.logNACK((NACK) event);
-			processNACKFromInterface(interfaceId, (NACK) event, time);
-		} else if (event instanceof RIPMessage) {
-			statTracker.logRIPMessage((RIPMessage) event);
-			processRIPMessageFromInterface(interfaceId, (RIPMessage) event, time);
-		} else {
-			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + event);
-		}
+		processInputMessageFromInterface(interfaceId, (Message) event, time);
 	}
 	
 	public Stream<String> generateCSVStatisticsStream() {

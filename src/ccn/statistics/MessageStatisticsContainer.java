@@ -6,13 +6,14 @@ public class MessageStatisticsContainer {
 	
 	protected int totalAccumulatedBytes;
 	protected int totalReceivedMessages;
+	protected long totalTimeSpentProcessing;
 	protected String messageTypeName;
 	
 	public MessageStatisticsContainer(String name) {
 		messageTypeName = name;
 	}
 	
-	public void logMessage(Message msg) {
+	public void logMessage(Message msg, long time) {
 		totalReceivedMessages++;
 		totalAccumulatedBytes += msg.getSizeInBytes();
 	}
@@ -25,10 +26,15 @@ public class MessageStatisticsContainer {
 		return totalReceivedMessages;
 	}
 	
-	public String getCSVString(int totalCount, int totalSize) {
-		String csv = "count," + messageTypeName + ",";
-		csv = csv + totalReceivedMessages + "," + ((float) totalReceivedMessages / (float) totalCount * 100);
-		csv = csv + totalAccumulatedBytes + "," + ((float) totalAccumulatedBytes / (float) totalSize * 100);
+	public long getTotalTimeSpentProcessing() {
+		return totalTimeSpentProcessing;
+	}
+	
+	public String getCSVString(int totalCount, int totalSize, long totalTime) {
+		String csv = messageTypeName + ",";
+		csv = csv + "count," + totalReceivedMessages + "," + ((float) totalReceivedMessages / (float) totalCount * 100) + ",";
+		csv = csv + "time," + totalTimeSpentProcessing + "," + ((float) totalTimeSpentProcessing / (float) totalTime * 100) + ",";
+		csv = csv + "size," + totalAccumulatedBytes + "," + ((float) totalAccumulatedBytes / (float) totalSize * 100);
 		return csv;
 	}
 	
