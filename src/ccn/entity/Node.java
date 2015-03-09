@@ -28,11 +28,11 @@ public abstract class Node extends Component {
 	private Map<String, Long> pendingMessageTable;
 	private static final Logger logger = Logger.getConsoleLogger(Node.class.getName());
 
-	public Node(String identity, Point nodeLocation, List<String> interfaces) {
+	public Node(String identity, Point nodeLocation, List<String> nodeInterfaces) {
 		super(identity);
 		location = nodeLocation;
 		interfaces = new ArrayList<String>();
-		interfaces.addAll(interfaces);
+		interfaces.addAll(nodeInterfaces);
 		statTracker = new NodeStatisticsContainer();
 		pendingMessageTable = new HashMap<String, Long>();
 		
@@ -42,21 +42,23 @@ public abstract class Node extends Component {
 		}
 	}
 	
-	protected void startMessageProcessing(Message msg, long time) {
+	private void startMessageProcessing(Message msg, long time) {
 		pendingMessageTable.put(msg.toString(), time);
 	}
 	
-	protected void finishMessageProcessing(Message msg, long time) throws Exception {
+	public void finishMessageProcessing(Message msg, long time) {
 		String eventKey = msg.toString();
 		if (!(pendingMessageTable.containsKey(eventKey))) {
-			throw new Exception("Error: event processing never started for " + eventKey);
+			System.err.println("Error: event processing never started for " + eventKey);
+		} else {
+			long processingTime = time - pendingMessageTable.get(eventKey);
+			pendingMessageTable.remove(eventKey);
+			finalizeMessageProcessing(msg, processingTime);
 		}
-		long processingTime = time - pendingMessageTable.get(eventKey);
-		pendingMessageTable.remove(eventKey);
-		finalizeMessageProcessing(msg, processingTime);
+		msg.setProcessed();
 	}
 	
-	private void finalizeMessageProcessing(Message msg, long processingTime) throws Exception {
+	private void finalizeMessageProcessing(Message msg, long processingTime) {
 		if (msg instanceof Interest) {
 			statTracker.logInterest((Interest) msg, processingTime);
 		} else if (msg instanceof ContentObject) {
@@ -77,6 +79,7 @@ public abstract class Node extends Component {
 	protected abstract void processContentObjectFromInterface(String interfaceId, ContentObject content, long time);
 	
 	private void processInputMessageFromInterface(String interfaceId, Message msg, long time) {
+		startMessageProcessing(msg, time);
 		if (msg instanceof Interest) {
 			processInterestFromInterface(interfaceId, (Interest) msg, time);
 		} else if (msg instanceof ContentObject) {
@@ -90,6 +93,7 @@ public abstract class Node extends Component {
 		} else {
 			logger.log(LogLevel.LogLevel_WARNING, time, "Invalid message type received at Node " + identity + ": " + msg);
 		}
+		finishMessageProcessing(msg, time + 1);
 	}
 
 	@Override

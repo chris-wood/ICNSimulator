@@ -44,13 +44,12 @@ public class Consumer extends Node {
 	@Override
 	protected void processContentObjectFromInterface(String interfaceId, ContentObject content, long time) {
 		logger.log(LogLevel.LogLevel_INFO, time, "Consumer " + identity + " received " + content);
-		content.setProcessed();
 	}
 
 	@Override
 	protected void processNACKFromInterface(String interfaceId, NACK nack, long time) {
 		logger.log(LogLevel.LogLevel_INFO, time, "Consumer " + identity + " received " + nack + " at time " + time);
-		nack.setProcessed();
+		finishMessageProcessing(nack, time);
 	}
 
 	@Override

@@ -37,7 +37,6 @@ public class NetworkStack {
 	}
 	
 	public void processRIPMessage(String interfaceId, RIPMessage routeMessage) {
-		routeMessage.setProcessed();
 		RIPMessage newMessage = new RIPMessage(routeMessage.getName(), routeMessage.getPrefix());
 		internalFib.installRoute(routeMessage.getPrefix(), interfaceId);
 		parentNode.broadcast(newMessage, interfaceId);
@@ -73,7 +72,6 @@ public class NetworkStack {
 	}
 	
 	public void processInterest(String interfaceId, Interest interest) {
-		interest.setProcessed();
 		if (contentStore.hasContent(interest.getName())) {
 			ContentObject cachedMessage = contentStore.retrieveContentByName(interest.getName());
 			parentNode.send(interfaceId, cachedMessage);
@@ -89,7 +87,6 @@ public class NetworkStack {
 	}
 	
 	public void processContentObject(String interfaceId, ContentObject content) {
-		content.setProcessed();
 		contentStore.insertContent(content.getName(), content);
 		List<String> downstreamInterfaces = internalPit.clearEntryAndGetEntries(content.getName());
 		for (String downstreamInterface : downstreamInterfaces) {
@@ -99,7 +96,6 @@ public class NetworkStack {
 	}
 	
 	public void processVirtualInterest(String interfaceId, VirtualInterest vint) {
-		vint.setProcessed();
 		sendVirtualInterest(vint);
 	}
 	
