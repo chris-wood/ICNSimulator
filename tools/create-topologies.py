@@ -17,7 +17,11 @@ for length in pathLengths:
 		fout.write(json)
 		fout.close()
 
-		fout = open(prefix + ".pickle", "w")
+		fout = open(prefix + ".graph.pickle", "w")
+		fout.write(pickle.dumps(pathGraph))
+		fout.close()
+
+		fout = open(prefix + ".network.pickle", "w")
 		fout.write(pickle.dumps(network))
 		fout.close()
 
@@ -35,7 +39,11 @@ for fanout in treeFanouts:
 			fout.write(json)
 			fout.close()
 
-			fout = open(prefix + ".pickle", "w")
+			fout = open(prefix + ".graph.pickle", "w")
+			fout.write(pickle.dumps(treeGraph))
+			fout.close()
+
+			fout = open(prefix + ".network.pickle", "w")
 			fout.write(pickle.dumps(network))
 			fout.close()
 
@@ -48,12 +56,17 @@ for producerCount in numberOfProducers:
 		for routerCount in numberOfRouters:
 			meshGraph = createRandomGraph(consumerCount, producerCount, routerCount)
 			if meshGraph != None:
+				network, json = graphToJSON(meshGraph)
+
 				prefix = "mesh_%d_%d_%d" % (consumerCount, producerCount, routerCount) 
 				fout = open(prefix + ".json", "w")
-				network, json = graphToJSON(meshGraph)
 				fout.write(json)
 				fout.close()
 
-				fout = open(prefix + ".pickle", "w")
+				fout = open(prefix + ".graph.pickle", "w")
+				fout.write(pickle.dumps(meshGraph))
+				fout.close()
+
+				fout = open(prefix + ".network.pickle", "w")
 				fout.write(pickle.dumps(network))
 				fout.close()

@@ -32,6 +32,9 @@ class Graph(object):
 		self.routerNodes = []
 		self.producerNodes = []
 
+	def distanceBetweenNodes(self, source, dest):
+		return None
+
 	def getGraph(self):
 		return self.graph
 
@@ -345,7 +348,7 @@ def createPathGraph(l):
 	G = Graph()
 
 	G.add_consumer(0)
-	
+
 	for i in range(1, l - 1):
 		G.add_router(i)
 		G.add_edge(i - 1, i)
