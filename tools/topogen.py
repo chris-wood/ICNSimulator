@@ -345,9 +345,13 @@ def createPathGraph(l):
 	G = Graph()
 
 	G.add_consumer(0)
+	
 	for i in range(1, l - 1):
 		G.add_router(i)
+		G.add_edge(i - 1, i)
+
 	G.add_producer(l - 1)
+	G.add_edge(l - 2, l - 1)
 
 	return G
 
