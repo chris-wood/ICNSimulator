@@ -8,6 +8,7 @@ import math
 import matplotlib.pyplot as plt
 import networkx as nx
 import argparse
+import pickle
 from matplotlib.backends.backend_pdf import PdfPages
 
 def createChannelName(source, dest):
@@ -409,7 +410,7 @@ def createGraph(args):
 
 def graphToJSON(graph):
 	network = buildNetworkFromGraph(graph)
-	return network.toJSON()
+	return network, network.toJSON()
 
 def main(args):
 	graph = createGraph(args)

@@ -1,14 +1,22 @@
 #!/usr/bin/python
 
 from topogen import *
+import pickle
 
 # Paths
 pathLengths = range(5,20)
 for length in pathLengths:
 	pathGraph = createPathGraph(length)
 	if pathGraph != None:
-		fout = open("path_%d.json" % length, "w")
-		fout.write(graphToJSON(pathGraph))
+		network, json = graphToJSON(pathGraph)
+
+		prefix = "path_%d" % length
+		fout = open(prefix + ".json", "w")
+		fout.write(json)
+		fout.close()
+
+		fout = open(prefix + ".pickle", "w")
+		fout.write(pickle.dumps(network))
 		fout.close()
 
 # Trees
@@ -18,8 +26,15 @@ for fanout in treeFanouts:
 	for height in treeHeights:
 		treeGraph = createTreeGraph(fanout, 2, height)
 		if treeGraph != None:
-			fout = open("tree_%d_%d.json" % (fanout, height), "w")
-			fout.write(graphToJSON(treeGraph))
+			network, json = graphToJSON(treeGraph)
+
+			prefix = "tree_%d_%d"% (fanout, height)
+			fout = open(prefix + ".json", "w")
+			fout.write(json)
+			fout.close()
+
+			fout = open(prefix + ".pickle", "w")
+			fout.write(pickle.dumps(network))
 			fout.close()
 
 # Meshes
@@ -31,8 +46,12 @@ for producerCount in numberOfProducers:
 		for routerCount in numberOfRouters:
 			meshGraph = createRandomGraph(consumerCount, producerCount, routerCount)
 			if meshGraph != None:
-				fout = open("mesh_%d_%d_%d.json" % (consumerCount, producerCount, routerCount), "w")
-				fout.write(graphToJSON(meshGraph))
+				prefix = "mesh_%d_%d_%d" % (consumerCount, producerCount, routerCount) 
+				fout = open(prefix + ".json", "w")
+				network, json = graphToJSON(meshGraph)
+				fout.write(json)
 				fout.close()
 
-
+				fout = open(prefix + ".pickle", "w")
+				fout.write(pickle.dumps(network))
+				fout.close()
