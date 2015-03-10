@@ -6,13 +6,14 @@ import pickle
 # TODO: read in parameters from a configuration file
 
 # Paths
-pathLengths = range(5,20)
+pathLengths = range(5,40)
 for length in pathLengths:
 	pathGraph = createPathGraph(length)
 	if pathGraph != None:
 		network, json = graphToJSON(pathGraph)
 
 		prefix = "path_%d" % length
+		print prefix
 		fout = open(prefix + ".json", "w")
 		fout.write(json)
 		fout.close()
@@ -21,8 +22,8 @@ for length in pathLengths:
 		pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
 # Trees
-treeFanouts = range(2,8)
-treeHeights = range(3, 20)
+treeFanouts = range(2,5)
+treeHeights = range(3,13)
 for fanout in treeFanouts:
 	for height in treeHeights:
 		treeGraph = createTreeGraph(fanout, 2, height)
@@ -30,6 +31,8 @@ for fanout in treeFanouts:
 			network, json = graphToJSON(treeGraph)
 
 			prefix = "tree_%d_%d"% (fanout, height)
+			print prefix			
+
 			fout = open(prefix + ".json", "w")
 			fout.write(json)
 			fout.close()
@@ -38,7 +41,7 @@ for fanout in treeFanouts:
 			pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
 # Meshes
-numberOfProducers = range(2, 10)
+numberOfProducers = range(1, 2)
 numberOfConsumers = range(2, 50)
 numberOfRouters = range(2, 100)
 for producerCount in numberOfProducers:
@@ -49,6 +52,7 @@ for producerCount in numberOfProducers:
 				network, json = graphToJSON(meshGraph)
 
 				prefix = "mesh_%d_%d_%d" % (consumerCount, producerCount, routerCount) 
+				print prefix
 				fout = open(prefix + ".json", "w")
 				fout.write(json)
 				fout.close()
