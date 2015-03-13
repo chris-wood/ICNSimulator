@@ -56,8 +56,9 @@ class Graph(object):
 		self.producerNodes.append(i)
 
 	def add_router(self, i):
-		self.graph.add_node(i)
-		self.routerNodes.append(i)
+		if not (i in self.graph.nodes()):
+			self.graph.add_node(i)
+			self.routerNodes.append(i)
 
 	def add_edge(self, u, v):
 		self.graph.add_edge(u, v)
@@ -365,7 +366,6 @@ def createTreeGraph(k, minLength, maxLength):
 	tree.add_producer(producerNode)
 
 	numLeaves = k**maxLength
-	formatString = '#0' + str(maxLength) + 'b'
 	for leaf in range(numLeaves):
 		height = random.randint(minLength, maxLength)
 		path = karyPath(k, leaf, maxLength)
@@ -379,18 +379,28 @@ def createTreeGraph(k, minLength, maxLength):
 
 	return tree
 
-# TODO: need to create routers with a finite cache capacity -> do that here
-def createRandomGraph(c, p, r):
+def createRandomGraph(c, p, r, edgeProbability = 0.25):
 	G = Graph()
 
-	for i in range(c):
-		G.add_consumer(i)
-	for i in range(p):
-		G.add_producer(i)
-	for i in range(r):
-		G.add_router(i)
+	randomMesh = nx.gnp_random_graph(r, edgeProbability)
+	for (u, v) in randomMesh.edges():
+		G.add_router(u)
+		G.add_router(v)
+		G.add_edge(u, v)
 
-	# TODO: make the connections as needed
+	numNodes = len(randomMesh.nodes())
+	for i in range(c):
+		identity = numNodes + i
+		G.add_consumer(identity)
+		adjacentRouter = random.choice(randomMesh.nodes())
+		G.add_edge(identity, adjacentRouter)
+
+	numNodes = numNodes + c
+	for i in range(p):
+		identity = numNodes + i
+		G.add_producer(identity)
+		adjacentRouter = random.choice(randomMesh.nodes())
+		G.add_edge(identity, adjacentRouter)
 
 	return G
 
