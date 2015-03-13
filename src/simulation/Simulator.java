@@ -12,11 +12,11 @@ import ccn.network.TopologyParser;
 
 public class Simulator extends Thread {
 	
-	private Configuration config;
+	private long simulationTime;
 	private TopologyParser topologyParser;
 	
-	public Simulator(Configuration simConfig, TopologyParser topologyParser) {
-		this.config = simConfig;
+	public Simulator(long configTime, TopologyParser topologyParser) {
+		this.simulationTime = configTime;
 		this.topologyParser = topologyParser;
 	}
 	
@@ -25,7 +25,7 @@ public class Simulator extends Thread {
 		try {
 			Topology topology = topologyParser.parse();
 			
-			SimulationDispatcher dispatcher = new SimulationDispatcher(config.time);
+			SimulationDispatcher dispatcher = new SimulationDispatcher(simulationTime);
 			
 			for (Node node : topology.getNodes()) {
 				node.setDispatcher(dispatcher);
@@ -35,6 +35,7 @@ public class Simulator extends Thread {
 			}
 			
 			dispatcher.run();
+			
 			List<String> stats = dispatcher.generateCSVStatistics();
 			for (String stat : stats) {
 				System.out.println(stat);
@@ -46,11 +47,8 @@ public class Simulator extends Thread {
 	
 	public static void main(String[] args) {
 		try {
-			// TODO: need cmdline parser 
-			Configuration simultationConfig = Yaml.loadType(new File(args[0]), Configuration.class);
 			TopologyParser topologyParser = TopologyParser.getParserForFile(args[1]);
-			
-			Simulator simulation = new Simulator(simultationConfig, topologyParser);
+			Simulator simulation = new Simulator(1000L, topologyParser);
 			simulation.run();
 		} catch (Exception ex) {
 			ex.printStackTrace();
