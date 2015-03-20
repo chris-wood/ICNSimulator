@@ -52,7 +52,7 @@ public class Simulator extends Thread {
 			simulator.run();
 			simulator.join();
 			
-			BufferedWriter writer = new BufferedWriter(new FileWriter(topologyFileName + ".csv"));
+			BufferedWriter writer = new BufferedWriter(new FileWriter(topologyFileName.replaceFirst(".json", ".csv")));
 			List<String> statistics = simulator.getStatistics();
 			for (String stat : statistics) {
 				System.out.println(stat);
