@@ -1,9 +1,8 @@
 package simulation;
 
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.util.List;
-
-import org.ho.yaml.Yaml;
 
 import ccn.entity.Node;
 import ccn.network.Link;
@@ -14,6 +13,7 @@ public class Simulator extends Thread {
 	
 	private long simulationTime;
 	private TopologyParser topologyParser;
+	private SimulationDispatcher dispatcher;
 	
 	public Simulator(long configTime, TopologyParser topologyParser) {
 		this.simulationTime = configTime;
@@ -24,8 +24,7 @@ public class Simulator extends Thread {
 	public void run() {
 		try {
 			Topology topology = topologyParser.parse();
-			
-			SimulationDispatcher dispatcher = new SimulationDispatcher(simulationTime);
+			dispatcher = new SimulationDispatcher(simulationTime);
 			
 			for (Node node : topology.getNodes()) {
 				node.setDispatcher(dispatcher);
@@ -35,21 +34,33 @@ public class Simulator extends Thread {
 			}
 			
 			dispatcher.run();
-			
-			List<String> stats = dispatcher.generateCSVStatistics();
-			for (String stat : stats) {
-				System.out.println(stat);
-			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
 	}
 	
+	public List<String> getStatistics() {
+		return dispatcher.generateCSVStatistics();
+	}
+	
 	public static void main(String[] args) {
 		try {
-			TopologyParser topologyParser = TopologyParser.getParserForFile(args[1]);
-			Simulator simulation = new Simulator(1000L, topologyParser);
-			simulation.run();
+			String topologyFileName = args[1];
+			TopologyParser topologyParser = TopologyParser.getParserForFile(topologyFileName);
+			
+			Simulator simulator = new Simulator(1000L, topologyParser);
+			simulator.run();
+			simulator.join();
+			
+			BufferedWriter writer = new BufferedWriter(new FileWriter(topologyFileName + ".csv"));
+			List<String> statistics = simulator.getStatistics();
+			for (String stat : statistics) {
+				System.out.println(stat);
+				writer.write(stat);
+				writer.newLine();
+			}
+			writer.flush();
+			writer.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
