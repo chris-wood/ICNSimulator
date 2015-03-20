@@ -163,7 +163,7 @@ class Tree(Graph):
 		self.consumerNodes.extend(leaves)
 		self.routerNodes.extend(nonleaves)
 
-class Network:
+class Network(object):
 	def __init__(self, capacityDistribution=[1000000]):
 		self.connections = []
 		self.channels = []
@@ -177,6 +177,7 @@ class Network:
 		self.channels.append(channel)
 
 	def createChannels(self, graph, dataRateDistribution = [100]):
+		self.roots = graph.producerNodes
 		for (u, v) in graph.edges():
 			identifier = createChannelName(u, v)
 			dataRate = random.choice(dataRateDistribution)

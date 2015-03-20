@@ -3,7 +3,7 @@
 from topogen import *
 import pickle
 
-# TODO: read in parameters from a configuration file
+targetDir = sys.argv[1]
 
 # Paths
 pathLengths = range(5,40)
@@ -12,7 +12,7 @@ for length in pathLengths:
 	if pathGraph != None:
 		network, json = graphToJSON(pathGraph)
 
-		prefix = "path_%d" % length
+		prefix = targetDir + "/" + "path_%d" % length
 		print prefix
 		fout = open(prefix + ".json", "w")
 		fout.write(json)
@@ -30,7 +30,7 @@ for fanout in treeFanouts:
 		if treeGraph != None:
 			network, json = graphToJSON(treeGraph)
 
-			prefix = "tree_%d_%d"% (fanout, height)
+			prefix = targetDir + "/" + "tree_%d_%d"% (fanout, height)
 			print prefix			
 
 			fout = open(prefix + ".json", "w")
@@ -40,22 +40,22 @@ for fanout in treeFanouts:
 			pickle.dump(treeGraph, open(prefix + ".graph.pickle", "wb"))
 			pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
-# Meshes
-numberOfProducers = range(1, 2)
-numberOfConsumers = range(2, 50)
-numberOfRouters = range(2, 100)
-for producerCount in numberOfProducers:
-	for consumerCount in numberOfConsumers:
-		for routerCount in numberOfRouters:
-			meshGraph = createRandomGraph(consumerCount, producerCount, routerCount)
-			if meshGraph != None:
-				network, json = graphToJSON(meshGraph)
+# # Meshes
+# numberOfProducers = range(1, 2)
+# numberOfConsumers = range(2, 50)
+# numberOfRouters = range(2, 100)
+# for producerCount in numberOfProducers:
+# 	for consumerCount in numberOfConsumers:
+# 		for routerCount in numberOfRouters:
+# 			meshGraph = createRandomGraph(consumerCount, producerCount, routerCount)
+# 			if meshGraph != None:
+# 				network, json = graphToJSON(meshGraph)
 
-				prefix = "mesh_%d_%d_%d" % (consumerCount, producerCount, routerCount) 
-				print prefix
-				fout = open(prefix + ".json", "w")
-				fout.write(json)
-				fout.close()
+# 				prefix = targetDir + "/" + "mesh_%d_%d_%d" % (consumerCount, producerCount, routerCount) 
+# 				print prefix
+# 				fout = open(prefix + ".json", "w")
+# 				fout.write(json)
+# 				fout.close()
 
-				pickle.dump(meshGraph, open(prefix + ".graph.pickle", "wb"))
-				pickle.dump(network, open(prefix + ".network.pickle", "wb"))
+# 				pickle.dump(meshGraph, open(prefix + ".graph.pickle", "wb"))
+# 				pickle.dump(network, open(prefix + ".network.pickle", "wb"))
