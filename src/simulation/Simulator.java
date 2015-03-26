@@ -45,10 +45,10 @@ public class Simulator extends Thread {
 	
 	public static void main(String[] args) {
 		try {
-			String topologyFileName = args[1];
+			String topologyFileName = args[0];
 			TopologyParser topologyParser = TopologyParser.getParserForFile(topologyFileName);
 			
-			Simulator simulator = new Simulator(1000L, topologyParser);
+			Simulator simulator = new Simulator(10000L, topologyParser);
 			simulator.run();
 			simulator.join();
 			

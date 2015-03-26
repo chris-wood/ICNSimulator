@@ -16,6 +16,8 @@ import ccn.util.Logger;
 public class Consumer extends Node {
 	
 	protected NetworkStack stack;
+	protected int interestSequenceNumber = 0;
+	protected int interestSequenceRange = 100;
 	
 	private static final Logger logger = Logger.getConsoleLogger(Consumer.class.getName());
 
@@ -26,7 +28,9 @@ public class Consumer extends Node {
 
 	@Override
 	protected void runComponent(long time) {
-		Interest interest = new Interest("lci:/test");
+		String name = "lci:/test/"+ interestSequenceNumber;
+		interestSequenceNumber = (interestSequenceNumber + 1) % interestSequenceRange;
+		Interest interest = new Interest(name);
 		logger.log(LogLevel.LogLevel_INFO, time, "Consumer issuing interest " + interest);
 		stack.sendInterest(interest);
 	}
