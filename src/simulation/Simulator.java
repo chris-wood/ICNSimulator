@@ -48,7 +48,7 @@ public class Simulator extends Thread {
 			String topologyFileName = args[0];
 			TopologyParser topologyParser = TopologyParser.getParserForFile(topologyFileName);
 			
-			Simulator simulator = new Simulator(10000L, topologyParser);
+			Simulator simulator = new Simulator(100000L, topologyParser);
 			simulator.run();
 			simulator.join();
 			

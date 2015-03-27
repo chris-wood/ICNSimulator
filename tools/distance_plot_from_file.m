@@ -1,5 +1,6 @@
-function [ ] = distance_plot_from_file( fileName )
+function [ ] = distance_plot_from_file( )
 
+fileName = sprintf('tree_2_5');
 M1 = csvread(sprintf('%s.ccn.message.ContentObject.csv', fileName));
 M2 = csvread(sprintf('%s.ccn.message.Interest.csv', fileName));
 M3 = csvread(sprintf('%s.ccn.message.VirtualInterest.csv', fileName));

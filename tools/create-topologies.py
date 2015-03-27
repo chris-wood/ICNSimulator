@@ -22,7 +22,7 @@ for length in pathLengths:
 		pickle.dump(network, open(prefix + ".network.pickle", "wb"))
 
 # Trees
-treeFanouts = range(2,5)
+treeFanouts = range(2,4)
 treeHeights = range(3,13)
 for fanout in treeFanouts:
 	for height in treeHeights:

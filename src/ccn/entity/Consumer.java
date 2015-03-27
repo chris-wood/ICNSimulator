@@ -12,27 +12,36 @@ import ccn.message.VirtualInterest;
 import ccn.network.Point;
 import ccn.util.LogLevel;
 import ccn.util.Logger;
+import dispatch.math.PoissonDistribution;
+import dispatch.math.UniformDistribution;
 
 public class Consumer extends Node {
 	
 	protected NetworkStack stack;
-	protected int interestSequenceNumber = 0;
-	protected int interestSequenceRange = 100;
+	protected int interestNonceRange = 10;
+	protected long arrivalRate = 500;
+	protected PoissonDistribution arrivalDistribution;
+	protected UniformDistribution uniformDistribution;
 	
 	private static final Logger logger = Logger.getConsoleLogger(Consumer.class.getName());
 
 	public Consumer(String identity, Point location, List<String> interfaces) {
 		super(identity, location, interfaces);
 		stack = ConsumerStackFactory.buildDefault(this);
+		uniformDistribution = new UniformDistribution(0, interestNonceRange);
+		arrivalDistribution = new PoissonDistribution(50);
 	}
 
 	@Override
 	protected void runComponent(long time) {
-		String name = "lci:/test/"+ interestSequenceNumber;
-		interestSequenceNumber = (interestSequenceNumber + 1) % interestSequenceRange;
+		int sequenceNumber = (int) uniformDistribution.sample();
+		String name = "lci:/test/"+ sequenceNumber;
 		Interest interest = new Interest(name);
 		logger.log(LogLevel.LogLevel_INFO, time, "Consumer issuing interest " + interest);
 		stack.sendInterest(interest);
+		
+		int waitTime = (int) arrivalDistribution.sample();
+		yield(waitTime);
 	}
 
 	@Override
