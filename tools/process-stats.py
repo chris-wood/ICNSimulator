@@ -49,7 +49,7 @@ def computeStatistics(fileName, csvfile, graph, network):
 				nodeCountMap[distance][messageType] = countTotal
 
 			if (distance in nodeSizeMap and messageType in nodeSizeMap[distance]):
-				nodeSizeMap[distance] = nodeSizeMap[distance][messageType] + sizeTotal
+				nodeSizeMap[distance][messageType] = nodeSizeMap[distance][messageType] + sizeTotal
 			elif (distance in nodeSizeMap and not (messageType in nodeSizeMap[distance])):
 				nodeSizeMap[distance][messageType] = sizeTotal
 			else:
@@ -57,7 +57,7 @@ def computeStatistics(fileName, csvfile, graph, network):
 				nodeSizeMap[distance][messageType] = sizeTotal
 
 			if (distance in nodeTimeMap and messageType in nodeTimeMap[distance]):
-				nodeTimeMap[distance] = nodeTimeMap[distance][messageType] + timeTotal
+				nodeTimeMap[distance][messageType] = nodeTimeMap[distance][messageType] + timeTotal
 			elif (distance in nodeTimeMap and not (messageType in nodeTimeMap[distance])):
 				nodeTimeMap[distance][messageType] = timeTotal
 			else:
